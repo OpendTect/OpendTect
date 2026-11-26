@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uifont.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
+#include "uistringtableviewgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -66,13 +67,12 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sgsu.withctxtfilter_.add( ctxtfilter_ );
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );
-    selgrp_->getListField()->setHSzPol( uiObject::Medium );
     mAttachCB( selgrp_->itemInitRead, uiObjFileMan::initObjRead );
     mAttachCB( selgrp_->launchLocate, uiObjFileMan::doLocateCB );
 
     auto* refreshbut =
-	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),
-			  mCB(this,uiObjFileMan,updateCB) );
+	new uiToolButton( &selgrp_->getTableGroup()->filterGroup(), "refresh",
+			  tr("Refresh"), mCB(this,uiObjFileMan,updateCB) );
     refreshbut->attach( rightOf, selgrp_->getFilterFieldAttachObj() );
 
     extrabutgrp_ = new uiButtonGroup( listgrp_, "Extra Buttons",

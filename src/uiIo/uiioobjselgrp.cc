@@ -11,13 +11,18 @@ ________________________________________________________________________
 #include "uiioobjinserter.h"
 #include "uiioobjselwritetransl.h"
 
+#include "stringtablemodel.h"
+#include "uistringtableviewgrp.h"
+
+#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
 #include "filesystemwatcher.h"
-#include "globexpr.h"
+#include "file.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
+#include "ioobjselectiontransl.h"
 #include "iopar.h"
 #include "settings.h"
 #include "separstr.h"
@@ -26,9 +31,8 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
+#include "uiioobjseldlg.h"
 #include "uilabel.h"
-#include "uilistbox.h"
-#include "uilistboxchoiceio.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
@@ -99,8 +103,22 @@ void EntryData::setObjName( const char* objnm )
 }
 
 
+void EntryData::setFromIOObj( const IOObj& ioobj )
+{
+    const char* modtm = File::timeLastModified( ioobj.fullUserExpr(), "" );
+    const StringView modstr( modtm );
+    if ( !modstr.isEmpty() && modstr != "-" )
+	modat_ = modtm;
+    else
+	ioobj.pars().get( sKey::CrAt(), modat_ );
+
+    usernm_ = ioobj.userName();
+}
+
+
 // EntryDataSet
 EntryDataSet::EntryDataSet()
+    : stringTableChanged(this)
 {}
 
 
@@ -127,6 +145,7 @@ EntryDataSet& EntryDataSet::add( const MultiID& mid, bool isdef )
     }
 
     auto* data = new EntryData( mid, nm, nm, icnnm, isdef );
+    data->setFromIOObj( *ioobj );
     *this += data;
     livemids_.add( mid );
     if ( isdef )
@@ -142,16 +161,18 @@ EntryDataSet& EntryDataSet::add( const MultiID& mid, const BufferString& objnm,
     if ( mid.isUdf() || livemids_.isPresent(mid) )
 	return *this;
 
+    PtrMan<IOObj> ioobj = IOM().get( mid );
     BufferString icnnm = NoIconNm;
-    if ( requireIcon() )
+    if ( requireIcon() && ioobj )
     {
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	PtrMan<Translator> transl = ioobj ? ioobj->createTranslator() : nullptr;
+	PtrMan<Translator> transl = ioobj->createTranslator();
 	if ( transl )
 	    icnnm = transl->iconName();
     }
 
     auto* data = new EntryData( mid, objnm, dispnm, icnnm, isdef );
+    if ( ioobj )
+	data->setFromIOObj( *ioobj );
     *this += data;
     livemids_.add( mid );
     if ( isdef )
@@ -169,6 +190,20 @@ void EntryDataSet::erase()
 }
 
 
+void EntryDataSet::setNames( const BufferStringSet& nms )
+{
+    erase();
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	const BufferString& nm = nms.get( idx );
+	*this += new EntryData( MultiID::udf(), nm, nm, NoIconNm, false );
+	livemids_ += MultiID::udf();
+    }
+
+    stringTableChanged.trigger();
+}
+
+
 EntryDataSet& EntryDataSet::removeMID( const MultiID & mid )
 {
     if ( mid.isUdf() )
@@ -180,6 +215,10 @@ EntryDataSet& EntryDataSet::removeMID( const MultiID & mid )
 
     this->removeSingle( idx );
     livemids_.removeSingle( idx );
+    const int badidx = badids_.indexOf( mid );
+    if ( badidx >= 0 )
+	badids_.removeSingle( badidx );
+
     return *this;
 }
 
@@ -266,6 +305,58 @@ int EntryDataSet::indexOfNm( const BufferString& nm, bool isdispnm ) const
 }
 
 
+void EntryDataSet::setIsBad( const MultiID& mid, bool yn )
+{
+    const int idx = badids_.indexOf( mid );
+    if ( yn )
+    {
+	if ( idx < 0 )
+	    badids_ += mid;
+    }
+    else if ( idx >= 0 )
+	badids_.removeSingle( idx );
+
+    stringTableChanged.trigger();
+}
+
+
+bool EntryDataSet::isBad( const MultiID& mid ) const
+{
+    return badids_.isPresent( mid );
+}
+
+
+void EntryDataSet::fillStringTable( StringTableContents& contents ) const
+{
+    contents.columns_.add( "Name" );
+    contents.columns_.add( "Date Modified" );
+    contents.columns_.add( "Interpreter" );
+    contents.types_ += TableModel::Text;
+    contents.types_ += TableModel::DateTime;
+    contents.types_ += TableModel::Text;
+    for ( const EntryData* ed : *this )
+    {
+	auto* cells = new BufferStringSet;
+	cells->add( ed->getDispNm() );
+	cells->add( ed->getModAt() );
+	cells->add( ed->getUserNm() );
+	contents.rows_.add( cells );
+
+	BufferString icnnm;
+	if ( requireIcon() )
+	{
+	    icnnm = ed->getIcnNm();
+	    if ( icnnm.isEmpty() )
+		icnnm = NoIconNm;
+	}
+
+	contents.icons_.add( icnnm );
+	contents.rowcolors_ += isBad(ed->getMID()) ? sNotOKColor
+						   : OD::Color::NoColor();
+    }
+}
+
+
 const EntryData* EntryDataSet::getDataFor( const MultiID& mid ) const
 {
     const int idx = livemids_.indexOf( mid );
@@ -296,7 +387,8 @@ class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
 public:
 
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
-    : uiIOObjManipGroupSubj(sg->listfld_->box())
+    : uiIOObjManipGroupSubj( sg->tablegrp_ ? &sg->tablegrp_->view()
+					    : nullptr )
     , selgrp_(sg)
 {
     mAttachCB( selgrp_->selectionChanged, uiIOObjSelGrpManipSubj::selChg );
@@ -483,20 +575,38 @@ void uiIOObjSelGrp::omfChgCB( CallBacker* )
 
 uiObject* uiIOObjSelGrp::getFilterFieldAttachObj()
 {
-    return filtfld_->attachObj();
+    return tablegrp_ ? tablegrp_->filterField().attachObj() : nullptr;
 }
 
 
-void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
+uiTableView* uiIOObjSelGrp::getTableField()
+{
+    return tablegrp_ ? &tablegrp_->view() : nullptr;
+}
+
+
+void uiIOObjSelGrp::mkTopFlds( const uiString& )
 {
     topgrp_ = new uiGroup( this, "Top group" );
+    auto* model = new StringTableModel<EntryDataSet>;
+    model->setBaseData( &dataset_ );
+    tablemodel_ = model;
 
-    uiListBox::Setup su( setup_.choicemode_, seltxt );
-    listfld_ = new uiListBox( topgrp_, su, "Objects" );
-
-    filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter() );
-    filtfld_->setElemSzPol( uiObject::SmallVar );
-    mAttachCB( filtfld_->updateRequested, uiIOObjSelGrp::filtChg );
+    uiStringTableViewGrp::Setup tsu;
+    tsu.sorting_ = true;
+    tsu.showverticalheader_ = false;
+    tsu.multiselection_ = isMultiChoice();
+    tsu.checkboxes_ = isMultiChoice();
+    tsu.choicemode_ = setup_.choicemode_;
+    tsu.compactrows_ = true;
+    tablegrp_ = new uiStringTableViewGrp( topgrp_, tablemodel_, tsu,
+					  "Objects" );
+    tablegrp_->view().setPrefHeightInChar( 8 );
+    tablegrp_->setStretch( 2, 2 );
+    if ( isMultiChoice() )
+	tablegrp_->offerReadWriteSelection(
+			    mCB(this, uiIOObjSelGrp, readChoiceDone),
+			    mCB(this, uiIOObjSelGrp, writeChoiceReq) );
 
     uiLabeledComboBox* lastuilcb = nullptr;
     const FileMultiString withctxtfilters( setup_.withctxtfilter_ );
@@ -550,7 +660,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	    if ( lastuilcb )
 		ctxtfiltfld->attach( rightOf, lastuilcb );
 	    else
-		listfld_->attach( alignedBelow, ctxtfiltfld );
+		tablegrp_->attach( alignedBelow, ctxtfiltfld );
 
 	    lastuilcb = ctxtfiltfld;
 	    ctxtfiltfld_ = box;
@@ -570,20 +680,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	}
     }
 
-    listfld_->box()->attach( rightAlignedBelow, getFilterFieldAttachObj() );
-
-    topgrp_->setHAlignObj( listfld_ );
-
-    listfld_->setName( "Objects list" );
-    listfld_->box()->setPrefHeightInChar( 8 );
-    listfld_->setHSzPol( uiObject::Wide );
-    if ( isMultiChoice() )
-    {
-	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_,
-					     ctio_.ctxt_.objectTypeName() );
-	mAttachCB( lbchoiceio_->readDone, uiIOObjSelGrp::readChoiceDone );
-	mAttachCB( lbchoiceio_->storeRequested, uiIOObjSelGrp::writeChoiceReq );
-    }
+    topgrp_->setHAlignObj( tablegrp_ );
 }
 
 
@@ -615,9 +712,9 @@ void uiIOObjSelGrp::mkWriteFlds()
     if ( !nm.isEmpty() )
     {
 	nmfld_->setText( nm );
-	const int listidx = listfld_->indexOf( nm );
+	const int listidx = dataset_.indexOfNm( nm, false );
 	if ( listidx >= 0 )
-	    listfld_->setCurrentItem( listidx );
+	    setCurrent( listidx );
     }
 }
 
@@ -643,13 +740,13 @@ void uiIOObjSelGrp::mkManipulators()
 	return;
 
     const BufferStringSet nms;
-    uiButton* but = uiIOObjInserter::createInsertButton( listfld_, ctio_,
+    uiButton* but = uiIOObjInserter::createInsertButton( topgrp_, ctio_,
 							inserters_, nms );
     for ( auto* inserter : inserters_ )
 	mAttachCB( inserter->objInserted, uiIOObjSelGrp::objInserted );
 
-    if ( but )
-	but->attach( centeredLeftOf, listfld_->box() );
+    if ( but && tablegrp_ )
+	but->attach( centeredLeftOf, tablegrp_ );
 }
 
 
@@ -663,24 +760,97 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     delete manipgrpsubj_;
     delete ctio_.ioobj_;
     delete &ctio_;
-    delete lbchoiceio_;
     delete fswatcher_;
+    if ( tablegrp_ )
+	tablegrp_->view().setModel( nullptr );
+
+    delete tablemodel_;
 }
 
 
-bool uiIOObjSelGrp::isEmpty() const { return listfld_->isEmpty(); }
-int uiIOObjSelGrp::size() const { return listfld_->size(); }
-int uiIOObjSelGrp::currentItem() const { return listfld_->currentItem(); }
-int uiIOObjSelGrp::nrChosen() const { return listfld_->nrChosen(); }
-bool uiIOObjSelGrp::isChosen( int idx ) const { return listfld_->isChosen(idx);}
+void uiIOObjSelGrp::setCheckedOrSelected( const TypeSet<int>& rows )
+{
+    if ( !tablegrp_ )
+	return;
+
+    if ( tablegrp_->hasCheckBoxes() )
+    {
+	tablegrp_->setCheckedRows( rows );
+	if ( !rows.isEmpty() )
+	    setCurrent( rows[0] );
+
+	return;
+    }
+
+    tablegrp_->setSelectedRow( rows.isEmpty() ? -1 : rows[0] );
+}
+
+
+bool uiIOObjSelGrp::isEmpty() const
+{
+    return size() == 0;
+}
+
+
+int uiIOObjSelGrp::size() const
+{
+    return dataset_.size();
+}
+
+
+int uiIOObjSelGrp::currentItem() const
+{
+    return tableCurrentItem();
+}
+
+
+int uiIOObjSelGrp::nrChosen() const
+{
+    return tablegrp_ ? tablegrp_->nrChosen() : 0;
+}
+
+
+bool uiIOObjSelGrp::isChosen( int idx ) const
+{
+    return tablegrp_ && tablegrp_->isChosen( idx );
+}
+
+
 void uiIOObjSelGrp::setChosen( int idx, bool yn )
-{ listfld_->setChosen(idx,yn);}
-void uiIOObjSelGrp::chooseAll( bool yn ) { listfld_->chooseAll(yn);}
+{
+    if ( tablegrp_ )
+    {
+	tablegrp_->setChosen( idx, yn );
+	return;
+    }
+
+    if ( !yn )
+	return;
+
+    if ( !isMultiChoice() )
+	setCurrent( idx );
+}
+
+
+void uiIOObjSelGrp::chooseAll( bool yn )
+{
+    if ( !tablegrp_ || !tablegrp_->hasCheckBoxes() )
+	return;
+
+    TypeSet<int> rows;
+    if ( yn )
+    {
+	for ( int idx=0; idx<dataset_.size(); idx++ )
+	    rows += idx;
+    }
+
+    tablegrp_->setCheckedRows( rows );
+}
 
 
 MultiID uiIOObjSelGrp::currentID() const
 {
-    const int selidx = listfld_->currentItem();
+    const int selidx = currentItem();
     if ( selidx < 0 || !dataset_.validIdx(selidx) )
 	return MultiID::udf();
 
@@ -692,7 +862,7 @@ MultiID uiIOObjSelGrp::currentID() const
 MultiID uiIOObjSelGrp::chosenID( int objnr ) const
 {
     const TypeSet<MultiID>& mids = getIOObjIds();
-    for ( int idx=0; idx<listfld_->size(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
 	if ( isChosen(idx) )
 	    objnr--;
@@ -722,15 +892,15 @@ void uiIOObjSelGrp::getChosen( BufferStringSet& nms ) const
     nms.setEmpty();
     const BufferStringSet& objnms = dataset_.getIOObjNms();
     const int nrobjs = objnms.size();
-    if ( nrobjs != listfld_->size() )
+    if ( nrobjs != size() )
     {
 	pErrMsg("Should not happen");
 	return;
     }
 
-    for ( int idx=0; idx<listfld_->size(); idx++ )
+    for ( int idx=0; idx<size(); idx++ )
     {
-	if ( listfld_->isChosen(idx) )
+	if ( isChosen(idx) )
 	    nms.add( objnms.get( idx ) );
     }
 }
@@ -738,36 +908,31 @@ void uiIOObjSelGrp::getChosen( BufferStringSet& nms ) const
 
 void uiIOObjSelGrp::setCurrent( int curidx )
 {
+    if ( !tablegrp_ )
+	return;
+
     const int sz = dataset_.size();
     if ( curidx >= sz )
 	curidx = sz - 1;
 
-    listfld_->setCurrentItem( curidx );
+    tablegrp_->setSelectedRow( curidx );
     selectionChanged.trigger();
 }
 
 
 void uiIOObjSelGrp::setIsBad( int idx, bool isbad )
 {
-    if ( !listfld_->validIdx(idx) )
+    if ( !dataset_.validIdx(idx) )
 	return;
 
-    if ( isbad )
-	listfld_->setColor( idx, sNotOKColor );
-    else
-	listfld_->setDefaultColor( idx );
+    dataset_.setIsBad( dataset_.get(idx)->getMID(), isbad );
 }
 
 
 bool uiIOObjSelGrp::isEntryOK( const MultiID& mid ) const
 {
     const int idx = dataset_.indexOfMID( mid );
-    if ( !listfld_->validIdx(idx) )
-	return false;
-
-    const bool notok = listfld_->getColor( idx ) == sNotOKColor
-		     || listfld_->isMarked( idx );
-    return !notok;
+    return idx >= 0 && !dataset_.isBad( mid );
 }
 
 
@@ -784,26 +949,60 @@ void uiIOObjSelGrp::setChosen( const TypeSet<MultiID>& mids )
     if ( mids.isEmpty() )
 	return;
 
-    NotifyStopper ns1( listfld_->selectionChanged );
-    NotifyStopper ns2( listfld_->itemChosen );
-    if ( isMultiChoice() )
-	listfld_->chooseAll( false );
-
+    TypeSet<int> rows;
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const int selidx = dataset_.indexOfMID( mids[idx] );
 	if ( selidx >= 0 )
-	    listfld_->setChosen( selidx, true );
+	    rows += selidx;
     }
 
+    setCheckedOrSelected( rows );
     selChg( nullptr );
+}
+
+
+void uiIOObjSelGrp::setChosen( const BufferStringSet& nms )
+{
+    TypeSet<int> rows;
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	const int selidx = indexOf( nms.get(idx).buf() );
+	if ( selidx >= 0 )
+	    rows += selidx;
+    }
+
+    setCheckedOrSelected( rows );
+    selChg( nullptr );
+}
+
+
+void uiIOObjSelGrp::setItemNames( const BufferStringSet& nms )
+{
+    dataset_.setNames( nms );
+    if ( !nms.isEmpty() )
+	setCurrent( 0 );
+}
+
+
+int uiIOObjSelGrp::indexOf( const char* nm ) const
+{
+    if ( !nm || !*nm )
+	return -1;
+
+    const BufferString str( nm );
+    int idx = dataset_.indexOfNm( str, false );
+    if ( idx < 0 )
+	idx = dataset_.indexOfNm( str, true );
+
+    return idx;
 }
 
 
 bool uiIOObjSelGrp::updateCtxtIOObj()
 {
-    const int curitm = listfld_->currentItem();
-    const int sz = listfld_->size();
+    const int curitm = currentItem();
+    const int sz = size();
     const char* objtypenm = ctio_.ctxt_.objectTypeName();
     if ( ctio_.ctxt_.forread_ )
     {
@@ -1034,9 +1233,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 {
     const IODir iodir( ctio_.ctxt_.getSelKey() );
     IODirEntryList del( iodir, ctio_.ctxt_ );
-    BufferString nmflt = filtfld_->text();
-    GlobExpr::validateFilterString( nmflt );
-    del.fill( iodir, nmflt );
+    del.fill( iodir );
 
     dataset_.setEmpty();
     BufferStringSet defkeys;
@@ -1139,56 +1336,16 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
 void uiIOObjSelGrp::addEntryToListBox( const MultiID& mid )
 {
-    NotifyStopper ns1( listfld_->selectionChanged );
-    NotifyStopper ns2( listfld_->itemChosen );
-    const EntryData* ed = dataset_.getDataFor( mid );
-    if ( !ed )
+    if ( !dataset_.getDataFor(mid) )
 	return;
 
-    const BufferString& dispnm = ed->getDispNm();
-    listfld_->addItem( dispnm );
-    if ( requireIcon() )
-    {
-	BufferString icnm( ed->getIcnNm() );
-	if ( icnm.isEmpty() )
-	    icnm = NoIconNm;
-
-	const int idx = listfld_->indexOf( dispnm );
-	listfld_->setIcon( idx, icnm );
-	listfld_->setDefaultColor( idx );
-    }
+    syncTable();
 }
 
 
 void uiIOObjSelGrp::fillListBox()
 {
-    NotifyStopper ns1( listfld_->selectionChanged );
-    NotifyStopper ns2( listfld_->itemChosen );
-
-    listfld_->setEmpty();
-    listfld_->addItems( dataset_.getDispNms() );
-
-    if ( requireIcon() )
-    {
-	const BufferStringSet& iconnm = dataset_.getIconNms();
-	for ( int idx=0; idx< iconnm.size(); idx++ )
-	{
-	    BufferString icnm( iconnm.get(idx) );
-	    if ( icnm.isEmpty() )
-		icnm = NoIconNm;
-
-	    listfld_->setIcon( idx, icnm );
-	    listfld_->setDefaultColor( idx );
-	}
-    }
-
-    const TypeSet<int>& defaultidxs = dataset_.getDefaultIdxs();
-    for ( const auto& idx : defaultidxs )
-	listfld_->setBold( idx, true );
-
-    if ( !finalized() )
-	listfld_->resizeToContents();
-
+    syncTable();
     selectionChanged.trigger();
 }
 
@@ -1225,7 +1382,8 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 
     dataset_.add( ioobj->key(), false );
     fillListBox();
-    listfld_->setCurrentItem( ioobj->name().buf() );
+    const int newidx = dataset_.indexOfNm( BufferString(ioobj->name()), false );
+    setCurrent( newidx );
     if ( nmfld_ && ioobj->name() != seltxt )
 	nmfld_->setText( ioobj->name() );
 
@@ -1239,12 +1397,12 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
 {
     BufferString info;
     const int nrchosen = nrChosen();
-    const int idx = listfld_->currentItem();
+    const int idx = currentItem();
     IOObj* ret = getIOObj( idx );
     ctio_.setObj( ret ? ret->clone() : nullptr );
     if ( isMultiChoice() && nrchosen>1 )
     {
-	info.set( nrchosen ).add( "/" ).add( listfld_->size() )
+	info.set( nrchosen ).add( "/" ).add( size() )
 			    .add( " chosen" );
     }
     else
@@ -1267,9 +1425,9 @@ void uiIOObjSelGrp::triggerStatusMsg( const char* txt )
 }
 
 
-void uiIOObjSelGrp::preInitGrpCB( CallBacker* cb )
+void uiIOObjSelGrp::preInitGrpCB( CallBacker* )
 {
-    // done to set the size of list before finalizing.
+    // Data must be in the table before the dialog reads preferred sizes.
     fullUpdate( -1 );
 }
 
@@ -1288,23 +1446,24 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	if ( ctio_.ioobj_ )
 	    nmfld_->setText( ctio_.ioobj_->name() );
 
-	StringView presetnm = nmfld_->text();
-	if ( !presetnm.isEmpty() && listfld_->isPresent(presetnm) )
+	const BufferString presetnm( nmfld_->text() );
+	const int presetidx = dataset_.indexOfNm( presetnm, false );
+	if ( !presetnm.isEmpty() && presetidx >= 0 )
 	{
-	    listfld_->setCurrentItem( presetnm );
+	    setCurrent( presetidx );
 	    if ( wrtrselfld_ )
 	    {
 		if ( !ioobj )
 		    ioobj = IOM().get( currentID() );
+
 		if ( ioobj )
 		    wrtrselfld_->use( *ioobj );
 	    }
 	}
     }
 
-    mAttachCB( listfld_->selectionChanged, uiIOObjSelGrp::selChg );
-    mAttachCB( listfld_->itemChosen, uiIOObjSelGrp::choiceChg );
-    mAttachCB( listfld_->deleteButtonPressed, uiIOObjSelGrp::delPress );
+    if ( tablegrp_ )
+	mAttachCB( tablegrp_->selectionChanged, uiIOObjSelGrp::selChg );
     if ( ctio_.ctxt_.forread_ )
     {
 	selChg( nullptr );
@@ -1319,7 +1478,7 @@ void uiIOObjSelGrp::selChg( CallBacker* )
     PtrMan<IOObj> ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
     {
-	mkdefbut_->setSensitive( listfld_->size() );
+	mkdefbut_->setSensitive( size() );
 	const bool isdef = ioobj && IOObj::isSurveyDefault( ioobj->key() );
 	if ( ioobj && !isdef )
 	{
@@ -1339,19 +1498,6 @@ void uiIOObjSelGrp::selChg( CallBacker* )
 	wrtrselfld_->use( *ioobj );
 
     selectionChanged.trigger();
-}
-
-
-void uiIOObjSelGrp::choiceChg( CallBacker* )
-{
-    delete updStatusBarInfo( false );
-    itemChosen.trigger();
-}
-
-
-void uiIOObjSelGrp::filtChg( CallBacker* )
-{
-    fullUpdate( 0 );
 }
 
 
@@ -1415,23 +1561,113 @@ void uiIOObjSelGrp::newOutputNameCB( CallBacker* )
 }
 
 
+static const char* sSelDefault()
+{
+    return "Default";
+}
+
+
 void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
-    if ( !lbchoiceio_ ) return;
+    BufferString fnm;
+    BufferString filetyp;
+    {
+	CtxtIOObj* selctio = mMkCtxtIOObj(IOObjSelection);
+	selctio->ctxt_.forread_ = true;
+	const char* typenm = ctio_.ctxt_.objectTypeName();
+	if ( typenm && *typenm )
+	    selctio->ctxt_.requireType( typenm );
 
-    setChosen( lbchoiceio_->chosenKeys() );
+	filetyp = selctio->ctxt_.objectTypeName();
+	uiIOObjSelDlg dlg( this, *selctio );
+	if ( dlg.go() && dlg.ioObj() )
+	    fnm = dlg.ioObj()->fullUserExpr( true );
+
+	delete selctio->ioobj_;
+	delete selctio;
+    }
+
+    if ( fnm.isEmpty() )
+	return;
+
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+    {
+	uiMSG().error( tr("Cannot open : %1 for read").arg(fnm) );
+	return;
+    }
+
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType(filetyp) )
+    {
+	uiMSG().error( tr("%1 has the wrong file type: %2")
+			.arg(fnm).arg(astrm.fileType()) );
+	return;
+    }
+
+    TypeSet<MultiID> keys;
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	MultiID key;
+	key.fromString( astrm.value() );
+	keys += key;
+    }
+
+    setChosen( keys );
 }
 
 
 void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 {
-    if ( !lbchoiceio_ )
+    BufferString fnm;
+    BufferString filetyp;
+    {
+	CtxtIOObj* selctio = mMkCtxtIOObj(IOObjSelection);
+	selctio->ctxt_.forread_ = false;
+	const char* typenm = ctio_.ctxt_.objectTypeName();
+	if ( typenm && *typenm )
+	    selctio->ctxt_.requireType( typenm );
+
+	filetyp = selctio->ctxt_.objectTypeName();
+	uiIOObjSelDlg dlg( this, *selctio );
+	if ( dlg.go() && dlg.ioObj() )
+	    fnm = dlg.ioObj()->fullUserExpr( false );
+
+	delete selctio->ioobj_;
+	delete selctio;
+    }
+
+    if ( fnm.isEmpty() )
 	return;
 
-    lbchoiceio_->keys().setEmpty();
-    const TypeSet<MultiID>& mids = getIOObjIds();
-    for ( int idx=0; idx< mids.size(); idx++ )
-	lbchoiceio_->keys().add( mids[idx] );
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+    {
+	uiMSG().error( tr("Cannot open : %1 for write").arg(fnm) );
+	return;
+    }
+
+    ascostream astrm( strm );
+    astrm.putHeader( filetyp );
+    const BufferStringSet nms = dataset_.getDispNms();
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !isChosen(idx) || !dataset_.validIdx(idx) )
+	    continue;
+
+	const char* nm = nms.validIdx(idx) ? nms.get(idx).buf() : "";
+	astrm.put( nm, dataset_.get(idx)->getMID() );
+    }
+
+    astrm.newParagraph();
+    const TypeSet<int>& defidxs = dataset_.getDefaultIdxs();
+    for ( const auto& idx : defidxs )
+    {
+	if ( dataset_.validIdx(idx) )
+	    astrm.put( sSelDefault(), dataset_.get(idx)->getMID() );
+    }
+
+    astrm.newParagraph();
 }
 
 
@@ -1542,6 +1778,24 @@ void uiIOObjSelGrp::ctxtTypeChgCB( CallBacker* cb )
 const TypeSet<MultiID>& uiIOObjSelGrp::getIOObjIds() const
 {
     return dataset_.getIOObjIds();
+}
+
+
+void uiIOObjSelGrp::syncTable()
+{
+    if ( tablegrp_ )
+	dataset_.stringTableChanged.trigger();
+}
+
+
+int uiIOObjSelGrp::tableCurrentItem() const
+{
+    if ( !tablegrp_ )
+	return -1;
+
+    TypeSet<int> rows;
+    tablegrp_->view().getSelectedRows( rows, true );
+    return rows.isEmpty() ? -1 : rows[0];
 }
 
 

@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiComboBox;
+class uiIOObjSelGrp;
+class uiLabel;
 class uiListBox;
 class uiListBoxFilter;
 class uiTableView;
@@ -135,7 +137,8 @@ protected:
 
     uiGroup*			maingrp_;
     uiGroup*			optionsgrp_;
-    uiListBox*			welllist_;
+    uiIOObjSelGrp*		wellselgrp_			= nullptr;
+    uiLabel*			wellsellbl_			= nullptr;
     uiListBox*			logormnslist_;
     uiListBoxFilter*		logormnsfilter_;
     uiListBox*			markerlist_;

@@ -202,7 +202,7 @@ uiMergePickSets( uiParent* p, MultiID& mid )
 
 void setInputSets( const BufferStringSet& nms )
 {
-    selfld_->getListField()->setChosen( nms );
+    selfld_->setChosen( nms );
 }
 
 

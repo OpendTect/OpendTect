@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uiaxishandler.h"
+#include "uitableview.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -285,7 +286,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     dlg.setCaption( tr("Select data store") );
     auto* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
 				       uiSelNrRange::Inl, false );
-    inlrgfld->attach( centeredBelow, dlg.selGrp()->getListField() );
+    inlrgfld->attach( centeredBelow, dlg.selGrp()->getTableField() );
     if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
 	return;
 

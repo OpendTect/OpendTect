@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiioobjseldlg.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjselwritetransl.h"
-#include "uilistbox.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 
@@ -123,7 +122,6 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
     sgsu.trsnotallwed( setup_.trsnotallwed_ );
     sgsu.hiddenpolicy( setup_.hiddenpolicy_ );
     selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
-    selgrp_->getListField()->resizeToContents();
     statusBar()->setTxtAlign( 0, Alignment::Right );
     mAttachCB(selgrp_->newStatusMsg, uiIOObjSelDlg::statusMsgCB);
 
@@ -160,8 +158,6 @@ void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 	captn = captn.arg( toUiString(ctio.ctxt_.name()) );
 
     setCaption( captn );
-
-    mAttachCB(selgrp_->getListField()->doubleClicked, uiDialog::accept);
 }
 
 

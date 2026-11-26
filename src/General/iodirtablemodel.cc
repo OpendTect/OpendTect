@@ -123,16 +123,6 @@ PixmapDesc IODirTableModel::pixmap( int row,int col ) const
 }
 
 
-void IODirTableModel::setChecked( int row, int col, int val )
-{}
-
-
-int IODirTableModel::isChecked( int row, int col ) const
-{
-    return -1;
-}
-
-
 uiString IODirTableModel::headerText( int rowcol, OD::Orientation orient ) const
 {
     if ( orient==OD::Vertical )

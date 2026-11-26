@@ -44,7 +44,6 @@ uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type,
     surfacefld_ = new uiMultiSurfaceRead( this, type, zinfo );
     surfacefld_->objselGrp()->newStatusMsg.notify(
 				mCB(this,uiMultiSurfaceReadDlg,statusMsg) );
-    surfacefld_->singleSurfaceSelected.notify( mCB(this,uiDialog,accept) );
 }
 
 
@@ -92,8 +91,6 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
     ctio_->ctxt_.setHiddenPolicy( objsu.hiddenpolicy_ );
     ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio_, objsu );
     mAttachCB( ioobjselgrp_->selectionChanged, uiMultiSurfaceRead::selCB );
-    mAttachCB( ioobjselgrp_->getListField()->doubleClicked,
-		uiMultiSurfaceRead::doubleClickCB );
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
@@ -112,12 +109,6 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
 uiMultiSurfaceRead::~uiMultiSurfaceRead()
 {
     detachAllNotifiers();
-}
-
-
-void uiMultiSurfaceRead::doubleClickCB( CallBacker* )
-{
-    singleSurfaceSelected.trigger();
 }
 
 

@@ -40,8 +40,6 @@ protected:
     OD::Color		textColor(int row,int col) const override;
     OD::Color		cellColor(int row,int col) const override;
     PixmapDesc		pixmap(int row,int col) const override;
-    void		setChecked(int row,int col,int val) override;
-    int			isChecked(int row,int col) const override;
     uiString		headerText(int rowcol,OD::Orientation) const override;
     uiString		tooltip(int row,int col) const override;
     const EnumDef*	getEnumDef(int col) const override;

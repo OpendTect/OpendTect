@@ -258,7 +258,8 @@ void uiExp2DGeom::setList( CallBacker* )
 	if ( geom2d && geom2d->is2D() )
 	    linenms.add( geom2d->getName() );
     }
-    geomfld_->getListField()->setChosen( linenms );
+
+    geomfld_->setChosen( linenms );
 }
 
 

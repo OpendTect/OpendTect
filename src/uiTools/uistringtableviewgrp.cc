@@ -157,6 +157,17 @@ int uiStringTableViewGrp::selectedRow() const
 }
 
 
+void uiStringTableViewGrp::setSelectedRow( int row )
+{
+    if ( !view_ )
+	return;
+
+    view_->clearSelection();
+    if ( row >= 0 )
+	view_->setCellSelected( RowCol(row,0), true, true );
+}
+
+
 void uiStringTableViewGrp::getSelectedRows( TypeSet<int>& rows ) const
 {
     rows.setEmpty();
@@ -243,8 +254,8 @@ void uiStringTableViewGrp::setChosen( int row, bool yn )
     if ( hasCheckBoxes() )
     {
 	setRowChecked( row, yn );
-	if ( yn && view_ )
-	    view_->setCellSelected( RowCol(row,0), true, true );
+	if ( yn )
+	    setSelectedRow( row );
 
 	return;
     }

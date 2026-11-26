@@ -42,7 +42,6 @@ protected:
 
     uiIOObjSelGrp*	ioobjselgrp_;
 
-    void		doubleClickCB(CallBacker*);
     void		selCB(CallBacker*);
 };
 

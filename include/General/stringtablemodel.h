@@ -15,17 +15,16 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "uistring.h"
 
-
-static OD::Color sFirstColumnColor() { return OD::Color(235,235,235); }
+static OD::Color sFirstColumnColor() { return OD::Color(235, 235, 235); }
 
 /*!\brief One snapshot of the strings a StringTableModel shows.
 
   Leave a list empty for the default. types_ empty means every column is
   Text. A shorter types_ list leaves the remaining columns as Text. A
   DateTime cell is an ISO-8601 string such as "2026-11-23T09:22:00". icons_
-  empty means no icons. rowcolors_ empty, or OD::Color::NoColor(),
-  leaves the view background. rowlabels_ empty, or an empty string, makes
-  that row's header row+1.
+  empty means no icons. rowcolors_ empty, or OD::Color::NoColor(), leaves the
+  view background. rowlabels_ empty, or an empty string, makes that row's
+  header row+1.
 
   rows_ owns its sets. The model takes them. Do not put pointers into
   the source object in rows_.

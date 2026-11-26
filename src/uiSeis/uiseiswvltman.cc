@@ -141,7 +141,7 @@ void uiSeisWvltMan::crPushCB( CallBacker* )
 
 void uiSeisWvltMan::mrgPushCB( CallBacker* )
 {
-    if ( selgrp_->getListField()->size()<2 )
+    if ( selgrp_->size()<2 )
 	mErrRet( tr("At least two wavelets are needed to merge wavelets") );
 
     uiSeisWvltMerge dlg( this, curioobj_ ? curioobj_->name().str() : 0 );

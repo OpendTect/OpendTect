@@ -1130,14 +1130,14 @@ void uiFaultParSel::doDlg( CallBacker* )
 	uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(fltnm) );
 			     sdsu.multisel( true );
 	uiIOObjSelDlg dlg( this, sdsu, *ctio );
-	dlg.selGrp()->getListField()->setChosen( selfaultnms_ );
+	dlg.selGrp()->setChosen( selfaultnms_ );
 	if ( dlg.go() != uiDialog::Accepted )
 	    return;
 
 	selfaultnms_.erase();
 	selfaultids_.erase();
 	uiIOObjSelGrp* selgrp = dlg.selGrp();
-	selgrp->getListField()->getChosen( selfaultnms_ );
+	selgrp->getChosen( selfaultnms_ );
 	for ( int idx=0; idx<selfaultnms_.size(); idx++ )
 	    selfaultids_ += selgrp->chosenID(idx);
     }

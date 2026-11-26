@@ -86,6 +86,7 @@ public:
     uiObject*		selectionGroupObj();
 
     int			selectedRow() const;
+    void		setSelectedRow(int);
     void		getSelectedRows(TypeSet<int>&) const;
     bool		hasCheckBoxes() const;
     bool		isRowChecked(int row) const;

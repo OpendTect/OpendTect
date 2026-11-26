@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjselwritetransl.h"
 #include "uilistbox.h"
+#include "uitableview.h"
 #include "uiseisposprovgroup.h"
 #include "uiselsurvranges.h"
 #include "uistrings.h"
@@ -126,8 +127,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    selgrp_->getTopGroup()->display( true, true );
 	if ( selgrp_->getNameField() )
 	    selgrp_->getNameField()->display( true, true );
-	if ( selgrp_->getListField() )
-	    selgrp_->getListField()->display( true, true );
+	if ( selgrp_->getTableField() )
+	    selgrp_->getTableField()->display( true, true );
 
 	if ( c.ioobj_)
 	{
@@ -144,8 +145,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	setTitleText( sssu.seltxt_ );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
-    selgrp_->getListField()->selectionChanged.notify(
-					    mCB(this,uiSeisSelDlg,entrySel) );
+    selgrp_->selectionChanged.notify( mCB(this,uiSeisSelDlg,entrySel) );
 
     if ( !selgrp_->getCtxtIOObj().ctxt_.forread_ && Seis::is2D(sssu.geom_) )
 	selgrp_->setConfirmOverwrite( false );
@@ -171,7 +171,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !compfld_ )
 	return;
 
-    if ( selgrp_->getListField()->currentItem() < 0 )
+    if ( selgrp_->currentItem() < 0 )
     {
 	compfld_->display( false );
 	return;

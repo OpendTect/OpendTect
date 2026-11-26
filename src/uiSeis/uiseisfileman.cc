@@ -118,9 +118,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     delete freshctxt;
 
     createDefaultUI( true );
-    selgrp_->getListField()->doubleClicked.notify(
-				is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
-				      : mCB(this,uiSeisFileMan,browsePush) );
 
     if ( is2d )
     {

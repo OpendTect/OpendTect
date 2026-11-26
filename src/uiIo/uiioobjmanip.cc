@@ -216,10 +216,6 @@ void uiIOObjManipGroup::selChg()
 
     TypeSet<MultiID> chosenids; subj_.getChosenIDs( chosenids );
     BufferStringSet chosennames; subj_.getChosenNames( chosennames );
-    if ( chosenids.isEmpty() )
-	return;
-
-    IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
     uiString tt;
 #define mSetTBStateAndTT4Cur(tb,cond,oper) \
@@ -237,6 +233,18 @@ void uiIOObjManipGroup::selChg()
 	mSetTBStateAndTT4Cur( locbut, canreloc, tr("Relocate" ) );
     }
     mSetTBStateAndTT4Cur( renbut, curiostrm, uiStrings::sRename() );
+
+    if ( chosenids.isEmpty() )
+    {
+	robut->setSensitive( false );
+	if ( rembut )
+	    rembut->setSensitive( false );
+
+	delete curioobj;
+	return;
+    }
+
+    IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
 #define mSetTBStateAndTT4Chosen(tb,cond,oper) \
     tb->setSensitive( cond ); \
@@ -288,6 +296,9 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     TypeSet<MultiID> chosenids;
     if ( !issingle )
 	subj_.getChosenIDs( chosenids );
+
+    if ( !issingle && chosenids.isEmpty() )
+	return;
 
     IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );
     if ( !firstioobj )

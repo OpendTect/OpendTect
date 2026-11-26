@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 #include "multiid.h"
+//#include "notify.h"
 #include "odcommonenums.h"
 
 
@@ -30,9 +31,11 @@ class uiIOObjManipGroup;
 class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
 class uiIOObjSelWriteTranslator;
-class uiListBox;
-class uiListBoxChoiceIO;
+class uiStringTableViewGrp;
+class uiTableView;
 class uiToolButton;
+class StringTableContents;
+class TableModel;
 
 
 /*!\brief Basic group for letting the user select an object.
@@ -62,18 +65,25 @@ public:
     const char*		getDispNm() const	{ return dispnm_.buf(); }
     const char*		getObjNm() const	{ return objnm_.buf(); }
     const char*		getIcnNm() const	{ return icnnm_.buf(); }
+    const char*		getModAt() const	{ return modat_.buf(); }
+    const char*		getUserNm() const	{ return usernm_.buf(); }
     bool		isDef() const		{ return isdef_; }
+
+    void		setFromIOObj(const IOObj&);
 
 protected:
     MultiID		mid_		= MultiID::udf();
     BufferString	icnnm_		= "empty";
     BufferString	dispnm_		= "NONE";
     BufferString	objnm_		= "NONE";
+    BufferString	modat_;
+    BufferString	usernm_;
     bool		isdef_		= false;
 };
 
 
 mExpClass(uiIo) EntryDataSet : public ManagedObjectSet<EntryData>
+			       , public CallBacker
 {
 public:
 				EntryDataSet();
@@ -95,12 +105,19 @@ public:
     int				indexOfMID(const MultiID& mid) const;
     int				indexOfNm(const BufferString&,
 					  bool isdispnm) const;
+    void			setIsBad(const MultiID&,bool yn);
+    bool			isBad(const MultiID&) const;
+    void			setNames(const BufferStringSet&);
+    void			fillStringTable(StringTableContents&) const;
+
+    Notifier<EntryDataSet>	stringTableChanged;
 
     void			erase() override;
 
 protected:
 
     TypeSet<MultiID>		livemids_;
+    TypeSet<MultiID>		badids_;
     mutable TypeSet<int>	defaultidxs_;
 };
 
@@ -161,6 +178,9 @@ public:
     void		setCurrent(const MultiID&);
     void		setChosen(int,bool yn=true);
     void		setChosen(const TypeSet<MultiID>&);
+    void		setChosen(const BufferStringSet&);
+    void		setItemNames(const BufferStringSet&);
+    int			indexOf(const char*) const;
     void		setIsBad(int,bool yn=true);
     bool		isEntryOK(const MultiID&) const;
     void		chooseAll(bool yn=true);
@@ -176,7 +196,8 @@ public:
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }
     uiObject*		getFilterFieldAttachObj();
-    uiListBox*		getListField()			{ return listfld_; }
+    uiTableView*	getTableField();
+    uiStringTableViewGrp* getTableGroup()		{ return tablegrp_; }
     uiIOObjManipGroup*	getManipGroup();
     void		displayManipGroup(bool yn,bool shrink=false);
 
@@ -218,13 +239,12 @@ protected:
     EntryDataSet		dataset_;
     bool			asked2overwrite_		= false;
 
-    uiListBox*			listfld_;
+    uiStringTableViewGrp*	tablegrp_			= nullptr;
+    TableModel*			tablemodel_			= nullptr;
     uiGenInput*			nmfld_				= nullptr;
-    uiGenInput*			filtfld_;
     uiIOObjSelGrpManipSubj*	manipgrpsubj_			= nullptr;
     uiIOObjSelWriteTranslator*	wrtrselfld_			= nullptr;
     uiToolButton*		mkdefbut_			= nullptr;
-    uiListBoxChoiceIO*		lbchoiceio_			= nullptr;
     ObjectSet<uiButton>		insertbuts_;
     ObjectSet<uiIOObjInserter>	inserters_;
     uiGroup*			topgrp_;
@@ -234,6 +254,9 @@ protected:
 
     void		fillListBox();
     void		addEntryToListBox(const MultiID&);
+    void		syncTable();
+    void		setCheckedOrSelected(const TypeSet<int>&);
+    int			tableCurrentItem() const;
     IOObj*		getIOObj(int);
     virtual bool	createEntry(const char*);
     IOObj*		updStatusBarInfo(bool);
@@ -243,8 +266,6 @@ protected:
     void		preInitGrpCB(CallBacker*);
     void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
-    void		choiceChg(CallBacker*);
-    void		filtChg(CallBacker*);
     void		objInserted(CallBacker*);
     void		objRemoved(CallBacker*);
     void		nameAvCB(CallBacker*);

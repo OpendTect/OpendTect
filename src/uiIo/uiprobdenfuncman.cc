@@ -34,8 +34,6 @@ uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
 		   ProbDenFuncTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    mAttachCB( selgrp_->getListField()->doubleClicked,
-	       uiProbDenFuncMan::browsePush );
 
     addManipButton( "editprdf",
 			tr("Browse/edit this Probability Density Function"),
