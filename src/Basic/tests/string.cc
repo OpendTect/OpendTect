@@ -538,6 +538,14 @@ static bool testUtf8Matching()
     mRunStandardTest( name.matches("*\xE4\xBD\xA0\xE5\xA5\xBD.TXT",
 				   OD::CaseInsensitive),
 		      "UTF-8 case-insensitive match after a star" );
+    mRunStandardTest( name.matches("J?RGEN_??.txt"),
+		      "? matches one UTF-8 character" );
+    mRunStandardTest( !name.matches("J?RGEN_???.txt"),
+		      "? does not match part of a UTF-8 character" );
+    mRunStandardTest( name.matches("J*?\xE5\xA5\xBD.txt"),
+		      "? after a star matches one UTF-8 character" );
+    mRunStandardTest( name.matches("j?rgen*",OD::CaseInsensitive),
+		      "? in a case-insensitive UTF-8 match" );
 
     const StringView upper( "\xC3\x9C" );
     mRunStandardTest( upper.getLevenshteinDist("\xC3\xBC",false) == 0,

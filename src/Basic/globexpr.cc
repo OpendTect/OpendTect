@@ -9,6 +9,13 @@ ________________________________________________________________________
 
 #include "globexpr.h"
 
+
+static bool isUtf8ContinuationByte( char ch )
+{
+    return (sCast(unsigned char,ch) & 0xC0) == 0x80;
+}
+
+
 GlobExpr::GlobExpr( const char* s, OD::CaseSensitivity cs )
     : expr_("")
     , errmsg_(nullptr)
@@ -80,7 +87,10 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 	switch ( *p )
 	{
-	case '?':	break;
+	case '?':
+	    while ( isUtf8ContinuationByte(t[1]) )
+		t++;
+	    break;
 	case '*':	return starMatches( p, t, errmsg, cs );
 
 	case '[':
@@ -193,6 +203,9 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 	    /* if end of text then no match */
 	    if ( !*t++ )
 		return false;
+
+	    while ( isUtf8ContinuationByte(*t) )
+		t++;
 	}
 
 	/* move to next char in pattern */
@@ -221,6 +234,9 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 	/* if the end of text is reached then no match */
 	if ( !*t++ )
 	    break;
+
+	while ( isUtf8ContinuationByte(*t) )
+	    t++;
     }
 
     return matched;
