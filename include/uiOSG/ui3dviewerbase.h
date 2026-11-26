@@ -12,9 +12,12 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "uiobj.h"
+#include "uiosgutil.h"
 
 class FontData;
-namespace visBase { class Scene; }
+class IOPar;
+namespace visBase
+{ class PolygonSelection; class Scene; class SceneColTab; }
 
 mExpClass(uiOSG) ui3DViewerBase : public uiObject
 {
@@ -48,6 +51,20 @@ public:
 
     virtual OD::Color	getBackgroundColor() const			= 0;
 			//!<setBackgroundColor() is virtual in uiObject
+
+    virtual visBase::PolygonSelection* getPolygonSelector()		= 0;
+    virtual visBase::SceneColTab* getSceneColTab()			= 0;
+
+    virtual bool	setStereoType(OD::StereoType)			= 0;
+    virtual OD::StereoType getStereoType() const			= 0;
+    virtual void	setStereoOffset(float)				= 0;
+    virtual float	getStereoOffset() const				= 0;
+
+    virtual void	fillPar(IOPar&) const				= 0;
+    virtual bool	usePar(const IOPar&)				= 0;
+
+    Notifier<ui3DViewerBase>		viewmodechanged;
+    CNotifier<ui3DViewerBase,bool>	pageupdown;
 
 protected:
 			ui3DViewerBase(uiParent*,const char* nm,

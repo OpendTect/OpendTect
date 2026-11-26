@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uivsgcontext.h"
 #include "vsggeocompiler.h"
 
+#include "iopar.h"
 #include "settings.h"
 
 
@@ -763,6 +764,38 @@ bool uiVSGViewer::isViewMode() const
 
 void uiVSGViewer::viewPlane( PlaneType )
 {}
+
+
+visBase::PolygonSelection* uiVSGViewer::getPolygonSelector()
+{ return nullptr; }
+
+
+visBase::SceneColTab* uiVSGViewer::getSceneColTab()
+{ return nullptr; }
+
+
+bool uiVSGViewer::setStereoType( OD::StereoType )
+{ return true; }
+
+
+OD::StereoType uiVSGViewer::getStereoType() const
+{ return OD::StereoType::None; }
+
+
+void uiVSGViewer::setStereoOffset( float )
+{}
+
+
+float uiVSGViewer::getStereoOffset() const
+{ return 0.f; }
+
+
+void uiVSGViewer::fillPar( IOPar& ) const
+{}
+
+
+bool uiVSGViewer::usePar( const IOPar& )
+{ return true; }
 
 
 void uiVSGViewer::align()

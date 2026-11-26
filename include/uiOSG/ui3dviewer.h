@@ -54,10 +54,10 @@ public:
     void		viewPlane(PlaneType) override;
     void		align() override;
 
-    bool		setStereoType(OD::StereoType);
-    OD::StereoType	getStereoType() const;
-    void		setStereoOffset(float);
-    float		getStereoOffset() const;
+    bool		setStereoType(OD::StereoType) override;
+    OD::StereoType	getStereoType() const override;
+    void		setStereoOffset(float) override;
+    float		getStereoOffset() const override;
 
     void		setMouseWheelZoomFactor(float);
 			/*!<Always positive, direction is set by
@@ -92,23 +92,21 @@ public:
     Geom::Size2D<int>	getViewportSizePixels() const;
 
     Notifier<ui3DViewer> destroyed;
-    Notifier<ui3DViewer> viewmodechanged;
-    CNotifier<ui3DViewer,bool> pageupdown;
     CallBack*		vmcb;
 
     void		setKeyBindings(const char* keybindname);
     void		getAllKeyBindings(BufferStringSet&) const;
     const char*		getCurrentKeyBindings() const;
 
-    visBase::PolygonSelection*	getPolygonSelector();
-    visBase::SceneColTab*	getSceneColTab();
+    visBase::PolygonSelection*	getPolygonSelector() override;
+    visBase::SceneColTab*	getSceneColTab() override;
     const osgViewer::View*	getOsgViewerMainView() const;
     const osgViewer::View*	getOsgViewerHudView() const;
     void			setScenesPixelDensity(float dpi);
     float			getScenesPixelDensity() const;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
     void		savePropertySettings() const;
 
     static StringView	sKeyBindingSettingsKey();

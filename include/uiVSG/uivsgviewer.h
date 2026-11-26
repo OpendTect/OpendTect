@@ -95,6 +95,14 @@ public:
 
 			// Not available in VSG yet: these do nothing
     void		viewPlane(PlaneType) override;
+    visBase::PolygonSelection* getPolygonSelector() override;
+    visBase::SceneColTab* getSceneColTab() override;
+    bool		setStereoType(OD::StereoType) override;
+    OD::StereoType	getStereoType() const override;
+    void		setStereoOffset(float) override;
+    float		getStereoOffset() const override;
+    void		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
     void		align() override;
     void		viewAll(bool animate=true) override;
     void		setStartupView() override;

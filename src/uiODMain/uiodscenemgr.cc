@@ -258,15 +258,16 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     actModeCB( nullptr );
 
     // Tree listeners add objects that read these
-    auto* osgvwr = dCast(ui3DViewer*,scn.vwr3d_);
-    if ( visscene && osgvwr )
+    if ( visscene && scn.vwr3d_ )
     {
-	if ( osgvwr->getPolygonSelector() )
-	    visscene->setPolygonSelector( osgvwr->getPolygonSelector() );
-	if ( osgvwr->getSceneColTab() )
-	    visscene->setSceneColTab( osgvwr->getSceneColTab() );
-	mAttachCB( visscene->sceneboundingboxupdated,
-		   uiODSceneMgr::newSceneUpdated );
+	if ( scn.vwr3d_->getPolygonSelector() )
+	    visscene->setPolygonSelector(
+				scn.vwr3d_->getPolygonSelector() );
+	if ( scn.vwr3d_->getSceneColTab() )
+	    visscene->setSceneColTab( scn.vwr3d_->getSceneColTab() );
+	if ( !isvsg )
+	    mAttachCB( visscene->sceneboundingboxupdated,
+		       uiODSceneMgr::newSceneUpdated );
     }
 
     if ( !isvsg )
@@ -286,10 +287,10 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	return sceneid;
     }
 
-    mAttachCB( osgvwr->viewmodechanged, uiODSceneMgr::viewModeChgCB );
-    mAttachCB( osgvwr->pageupdown, uiODSceneMgr::pageUpDownPressedCB );
+    mAttachCB( scn.vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChgCB );
+    mAttachCB( scn.vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressedCB );
 
-    OSGSceneBundle* firstscene = nullptr;
+    SceneBundle* firstscene = nullptr;
     int nrodscenes = 0;
     for ( auto* bundle : scenes_ )
     {
@@ -297,24 +298,23 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	    continue;
 
 	if ( !firstscene )
-	    firstscene = dCast(OSGSceneBundle*,bundle);
+	    firstscene = bundle;
 	nrodscenes++;
     }
 
-    if ( nrodscenes>1 && firstscene )
+    if ( nrodscenes>1 && firstscene && firstscene->vwr3d_ )
     {
-	auto* firstvwr = dCast(ui3DViewer*,firstscene->vwr3d_);
-	osgvwr->setStereoType( firstvwr->getStereoType() );
-	osgvwr->setStereoOffset( firstvwr->getStereoOffset() );
+	scn.vwr3d_->setStereoType( firstscene->vwr3d_->getStereoType() );
+	scn.vwr3d_->setStereoOffset( firstscene->vwr3d_->getStereoOffset() );
 	scn.vwr3d_->showRotAxis( firstscene->vwr3d_->rotAxisShown() );
-	if ( !firstvwr->isCameraPerspective() )
-	    osgvwr->toggleCameraType();
+	if ( !firstscene->vwr3d_->isCameraPerspective() )
+	    scn.vwr3d_->toggleCameraType();
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
     }
-    else if ( firstscene )
+    else if ( firstscene && firstscene->vwr3d_ )
     {
-	auto* firstvwr = dCast(ui3DViewer*,firstscene->vwr3d_);
-	const bool isperspective = firstvwr->isCameraPerspective();
+	const bool isperspective =
+			    firstscene->vwr3d_->isCameraPerspective();
 	if ( appl_.menuMgrAvailable() )
 	{
 	    appl_.menuMgr().setCameraPixmap( isperspective );
@@ -482,12 +482,11 @@ void uiODSceneMgr::getScenePars( IOPar& iopar )
     int idx = 0;
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
+	if ( bundle->isVSG() || !bundle->vwr3d_ )
 	    continue;
 
-	auto* scene = dCast(OSGSceneBundle*,bundle);
 	IOPar iop;
-	dCast(ui3DViewer*,scene->vwr3d_)->fillPar( iop );
+	bundle->vwr3d_->fillPar( iop );
 	iopar.mergeComp( iop, toString(idx++) );
     }
 }
@@ -510,8 +509,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	if ( !scn )
 	    continue;
 
-	auto* vwr3d = dCast(ui3DViewer*,scn->vwr3d_);
-	if ( !vwr3d->usePar(*scenepar) )
+	if ( !scn->vwr3d_ || !scn->vwr3d_->usePar(*scenepar) )
 	{
 	    removeScene( *scn );
 	    continue;
@@ -521,11 +519,12 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	RefMan<visSurvey::Scene> visscene = visServ().getScene( sceneid );
 	if ( visscene )
 	{
-	    if ( vwr3d->getPolygonSelector() )
-		visscene->setPolygonSelector( vwr3d->getPolygonSelector() );
+	    if ( scn->vwr3d_->getPolygonSelector() )
+		visscene->setPolygonSelector(
+				    scn->vwr3d_->getPolygonSelector() );
 
-	    if ( vwr3d->getSceneColTab() )
-		visscene->setSceneColTab( vwr3d->getSceneColTab() );
+	    if ( scn->vwr3d_->getSceneColTab() )
+		visscene->setSceneColTab( scn->vwr3d_->getSceneColTab() );
 	}
 
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
@@ -543,8 +542,8 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
 	scn->vwr3d_->display( true );
 	scn->vwr3d_->showRotAxis( true );
-	mAttachCB( vwr3d->viewmodechanged, uiODSceneMgr::viewModeChgCB );
-	mAttachCB( vwr3d->pageupdown, uiODSceneMgr::pageUpDownPressedCB );
+	mAttachCB( scn->vwr3d_->viewmodechanged, uiODSceneMgr::viewModeChgCB );
+	mAttachCB( scn->vwr3d_->pageupdown, uiODSceneMgr::pageUpDownPressedCB );
 	scn->mdiwin_->display( true, false );
 
 	treeToBeAdded.trigger( sceneid );
@@ -596,9 +595,9 @@ void uiODSceneMgr::viewModeChgCB( CallBacker* cb )
     if ( scenes_.isEmpty() )
 	return;
 
-    mDynamicCastGet(ui3DViewer*,vwr3d_,cb)
-    if ( vwr3d_ )
-	setToViewMode( vwr3d_->isViewMode() );
+    mDynamicCastGet(ui3DViewerBase*,vwr,cb)
+    if ( vwr )
+	setToViewMode( vwr->isViewMode() );
 }
 
 
@@ -748,8 +747,8 @@ int uiODSceneMgr::getStereoType() const
 {
     for ( auto* bundle : scenes_ )
     {
-	if ( !bundle->isVSG() )
-	    return (int)dCast(ui3DViewer*,bundle->vwr3d_)->getStereoType();
+	if ( !bundle->isVSG() && bundle->vwr3d_ )
+	    return (int)bundle->vwr3d_->getStereoType();
     }
 
     return 0;
@@ -768,7 +767,7 @@ void uiODSceneMgr::setStereoType( int type )
 	break;
     }
 
-    if ( !firstscene )
+    if ( !firstscene || !firstscene->vwr3d_ )
 	return;
 
     if ( type )
@@ -787,22 +786,20 @@ void uiODSceneMgr::setStereoType( int type )
     }
 
     OD::StereoType stereotype = (OD::StereoType)type;
-    auto* firstvwr = dCast(ui3DViewer*,firstscene->vwr3d_);
-    const float stereooffset = firstvwr->getStereoOffset();
+    const float stereooffset = firstscene->vwr3d_->getStereoOffset();
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
+	if ( bundle->isVSG() || !bundle->vwr3d_ )
 	    continue;
 
-	ui3DViewer& vwr3d_ = *dCast(ui3DViewer*,bundle->vwr3d_);
-	if ( !vwr3d_.setStereoType(stereotype) )
+	if ( !bundle->vwr3d_->setStereoType(stereotype) )
 	{
 	    uiMSG().error( tr("No support for this type of stereo rendering") );
 	    return;
 	}
 
 	if ( type )
-	    vwr3d_.setStereoOffset( stereooffset );
+	    bundle->vwr3d_->setStereoOffset( stereooffset );
     }
 
     if ( type>0 )

@@ -13,6 +13,8 @@ ________________________________________________________________________
 ui3DViewerBase::ui3DViewerBase( uiParent* parnt, const char* nm,
 				uiObjectBody& body )
     : uiObject(parnt,nm,body)
+    , viewmodechanged(this)
+    , pageupdown(this)
 {}
 
 
