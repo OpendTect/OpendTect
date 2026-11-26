@@ -261,7 +261,7 @@ protected:
     };
 
     ObjectSet<SceneBundle>	scenes_;
-    SceneBundle&		mkNewScene(bool vsg=false);
+    SceneBundle&		mkNewScene(bool isvsg=false);
     void			removeScene(SceneBundle&);
     void			removeSceneCB(CallBacker*);
     void			initTree(SceneBundle&,int);

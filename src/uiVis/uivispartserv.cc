@@ -275,10 +275,10 @@ void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 }
 
 
-SceneID uiVisPartServer::addScene( bool isvsg, visSurvey::Scene* newscene_in )
+SceneID uiVisPartServer::addScene( bool isvsg, visSurvey::Scene* newscene )
 {
-    RefMan<visSurvey::Scene> scene = newscene_in;
-    if ( !newscene_in && isvsg )
+    RefMan<visSurvey::Scene> scene = newscene;
+    if ( !newscene && isvsg )
     {
 	void* funcptr = getVSGFunction( "createVSGScene" );
 	if ( !funcptr )
@@ -287,7 +287,7 @@ SceneID uiVisPartServer::addScene( bool isvsg, visSurvey::Scene* newscene_in )
 	VSGSceneCreator creator = rCast( VSGSceneCreator, funcptr );
 	scene = creator();
     }
-    else if ( !newscene_in )
+    else if ( !newscene )
 	scene = visSurvey::Scene::create();
 
     if ( !scene )
@@ -2680,12 +2680,6 @@ bool uiVisPartServer::isLocked( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so && so->isLocked();
-}
-
-
-OD::Color uiVisPartServer::getSceneAnnotCol( int sceneidx )
-{
-    return scenes_[ sceneidx ]->getAnnotColor();
 }
 
 

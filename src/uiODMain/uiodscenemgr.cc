@@ -198,12 +198,16 @@ void uiODSceneMgr::cleanUp( bool startnew )
 }
 
 
-uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool vsg )
+uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool isvsg )
 {
-    SceneBundle* scn = vsg ? new uiODSceneMgr::VSGSceneBundle( mdiarea_ )
-			   : new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
-    if ( vsg )
+    SceneBundle* scn = nullptr;
+    if ( isvsg )
+    {
+	scn = new uiODSceneMgr::VSGSceneBundle( mdiarea_ );
 	scn->vwr3d_ = visServ().createVSGViewer( scn->mdiwin_ );
+    }
+    else
+	scn = new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
 
     mAttachCB( scn->mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     mAttachCB( scn->mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
@@ -221,7 +225,7 @@ uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool vsg )
 
 
 SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
-				 const uiString& name, bool isvsg )
+				 const uiString& nm, bool isvsg )
 {
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
@@ -266,8 +270,8 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( !isvsg )
 	treeAdded.trigger( sceneid );
 
-    if ( name.isSet() )
-	setSceneName( sceneid, name );
+    if ( nm.isSet() )
+	setSceneName( sceneid, nm );
 
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
 
@@ -854,14 +858,13 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
     for ( auto* bundle : scenes_ )
 	if ( bundle->vwr3d_ )
 	    bundle->vwr3d_->showRotAxis( show );
-    int idx = 0;
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() )
-	    continue;
-
-	const OD::Color& col = applMgr().visServer()->getSceneAnnotCol( idx++ );
-	dCast(OSGSceneBundle*,bundle)->vwr3d_->setAnnotationColor( col );
+	RefMan<visSurvey::Scene> visscene =
+				visServ().getScene( bundle->sceneID() );
+	if ( visscene && bundle->vwr3d_ )
+	    bundle->vwr3d_->setAnnotationColor(
+					visscene->getAnnotColor() );
     }
 }
 
@@ -1063,13 +1066,11 @@ SceneID uiODSceneMgr::getActiveSceneID() const
     const BufferString scenenm = mdiarea_->getActiveWin();
     for ( auto* bundle : scenes_ )
     {
-	if ( bundle->isVSG() || !bundle->itemmanager_ )
+	if ( !bundle->itemmanager_ || !bundle->mdiwin_ )
 	    continue;
 
-	auto* scene = dCast(OSGSceneBundle*,bundle);
-	if ( scenenm ==
-	   getSceneName(scene->itemmanager_->sceneID()).getFullString() )
-	    return scene->itemmanager_->sceneID();
+	if ( scenenm == bundle->mdiwin_->getTitle().getFullString() )
+	    return bundle->sceneID();
     }
 
     return SceneID::udf();
@@ -1101,17 +1102,6 @@ void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 
     const SceneID sceneid = getActiveSceneID();
     sceneChanged( sceneid );
-
-    const BufferString activenm = mdiarea_->getActiveWin();
-    for ( auto* bundle : scenes_ )
-    {
-	if ( bundle->isVSG() &&
-	     activenm == bundle->mdiwin_->getTitle().getFullString() )
-	{
-	    bundle->raiseTree();
-	    break;
-	}
-    }
 }
 
 

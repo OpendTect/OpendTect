@@ -357,8 +357,6 @@ public:
     void			manageSceneColorbar(const SceneID&);
     bool			sceneColorbarDisplayed();
 
-    OD::Color			getSceneAnnotCol(int);
-
 				//General stuff
     bool			deleteAllObjects();
     void			setZStretch();
