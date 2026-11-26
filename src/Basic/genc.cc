@@ -849,6 +849,7 @@ void RestartProgram()
 mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
+    BufferString res( 4096, false );
 #ifdef __msvc__
     size_t written = 0;
 # ifdef UNICODE
@@ -858,16 +859,14 @@ mExtern(Basic) const char* GetOSEnvVar( const char* env )
 	 written == 0 )
 	return nullptr;
 
-    wres.resize( written-1 );
-    const BufferString res( wres );
+    WinUtils::copyWString( wres.c_str(), res );
 # else
-    BufferString res( 4096, false );
     if ( getenv_s(&written,res.getCStr(),res.bufSize(),env) != 0 ||
 	 written == 0 )
 	return nullptr;
 # endif
 #else
-    const char* res = getenv( env );
+    res = getenv( env );
 #endif
 
     mDeclStaticString( resbuf );
