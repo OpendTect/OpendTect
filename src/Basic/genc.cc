@@ -850,17 +850,22 @@ mExtern(Basic) const char* GetOSEnvVar( const char* env )
 {
     Threads::Locker lock( getEnvVarLock() );
 #ifdef __msvc__
+    size_t written = 0;
+# ifdef UNICODE
     const std::wstring wenv = StringView( env ).toStdWString();
-    size_t len = 0;
-    if ( _wgetenv_s(&len,nullptr,0,wenv.c_str()) != 0 || len == 0 )
+    std::wstring wres( 4096, L'\0' );
+    if ( _wgetenv_s(&written,wres.data(),wres.size(),wenv.c_str()) != 0 ||
+	 written == 0 )
 	return nullptr;
 
-    std::wstring wres( len, L'\0' );
-    if ( _wgetenv_s(&len,wres.data(),wres.size(),wenv.c_str()) != 0 )
-	return nullptr;
-
-    wres.resize( len-1 );
+    wres.resize( written-1 );
     const BufferString res( wres );
+# else
+    BufferString res( 4096, false );
+    if ( getenv_s(&written,res.getCStr(),res.bufSize(),env) != 0 ||
+	 written == 0 )
+	return nullptr;
+# endif
 #else
     const char* res = getenv( env );
 #endif
@@ -874,8 +879,12 @@ mExtern(Basic) const char* GetOSEnvVar( const char* env )
 mExtern(Basic) void UnsetOSEnvVar( const char* env )
 {
 #ifdef __msvc__
+# ifdef UNICODE
     const std::wstring wenv = StringView( env ).toStdWString();
     _wputenv_s( wenv.c_str(), L"" );
+# else
+    _putenv_s( env, "" );
+# endif
 #else
     unsetenv( env );
 #endif
@@ -1044,9 +1053,13 @@ mExtern(Basic) void SetEnvVar( const char* env, const char* val )
 
     Threads::Locker lock( getEnvVarLock() );
 #ifdef __msvc__
+# ifdef UNICODE
     const std::wstring wenv = StringView( env ).toStdWString();
     const std::wstring wval = StringView( val ).toStdWString();
     _wputenv_s( wenv.c_str(), wval.c_str() );
+# else
+    _putenv_s( env, val );
+# endif
 #else
     setenv( env, val, 1 );
 #endif
