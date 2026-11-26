@@ -24,6 +24,10 @@ ________________________________________________________________________
   archive, to determine the output file location.
   basepath may be set to null, in which case it will be determined by
   base filepath of the input/output archive filename.
+  makeZip can get excludefnms: plain file names without any folder part,
+  so neither absolute nor relative paths, like ".od_survey.lock". A file
+  found inside an input directory, at any depth, is not put into the
+  archive when its name is in this set.
 */
 
 mExpClass(General) ZipUtils
@@ -38,14 +42,18 @@ public:
 					uiString& errmsg,
 					TaskRunner* =nullptr,
 					ZipHandler::CompLevel =
-					ZipHandler::Normal);
+					ZipHandler::Normal,
+					const BufferStringSet* excludefnms =
+					nullptr);
     static bool			makeZip(const BufferStringSet& fullsrcfnms,
 					const char* basepath,
 					const char* zipfilenm,
 					uiString& errmsg,
 					TaskRunner* =nullptr,
 					ZipHandler::CompLevel =
-					ZipHandler::Normal);
+					ZipHandler::Normal,
+					const BufferStringSet* excludefnms =
+					nullptr);
     static bool			appendToArchive(const char* fileordirinp,
 						const char* basepath,
 						const char* zipfilenm,

@@ -904,7 +904,18 @@ bool ZipHandler::initAppend( const char* fnm, const char* basepath,
 bool ZipHandler::getFileList( const char* src,
 			      BufferStringSet& filenames )
 {
+    const int firstidx = filenames.size();
     File::makeRecursiveFileList( src, filenames );
+    if ( !excludefnms_.isEmpty() )
+    {
+	for ( int idx=filenames.size()-1; idx>=firstidx; idx-- )
+	{
+	    const FilePath fp( filenames.get(idx) );
+	    if ( excludefnms_.isPresent(fp.fileName()) )
+		filenames.removeSingle( idx );
+	}
+    }
+
     for( int idx=0; idx<filenames.size(); idx++ )
 	totalsize_ += File::getFileSize( filenames.get(idx), false );
 
@@ -987,6 +998,12 @@ int ZipHandler::openStrmToRead( const char* src )
 void ZipHandler::setCompLevel( CompLevel cl )
 {
     complevel_ = cl;
+}
+
+
+void ZipHandler::setExcludeFileNames( const BufferStringSet& fnms )
+{
+    excludefnms_ = fnms;
 }
 
 

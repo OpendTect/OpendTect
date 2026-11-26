@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "survinfo.h"
 
+class BufferStringSet;
 class SurveyChanger;
 class TaskRunner;
 namespace OD { namespace JSON { class Object; } }
@@ -64,6 +65,8 @@ public:
     uiRetVal		warningMsg() const	{ return lastwarning_; }
 
     virtual BufferString getZipArchiveLocation() const			= 0;
+    static void		getLockFileNames(BufferStringSet&);
+			//<! Files of a survey that are not stored in its zip
     static const char*	extStr()			{ return "odz"; }
     static BufferString bckupExtStr()
 				{ return BufferString( extStr(), "_bck" ); }
