@@ -595,7 +595,7 @@ bool IOObj::belongsToCurrentUser() const
     }
 
     // A matching software user is enough, including on another OS account
-    // ("cases`arnaud6" while DTECT_USER is arnaud6).
+    // ("cases`demo" while DTECT_USER is demo).
     for ( const auto* token : tokens )
     {
 	if ( softnames.isPresent(token->buf()) )
@@ -610,7 +610,7 @@ bool IOObj::belongsToCurrentUser() const
 	return false;
 
     // No DTECT_USER: the OS account owns the entry, including one stamped
-    // with a software user ("arnaud`arnaud2"). With a software user set, every
+    // with a software user ("demo`demo2"). With a software user set, every
     // stored name must be ours so a shared account stays split.
     if ( softwareuser.isEmpty() )
 	return true;
