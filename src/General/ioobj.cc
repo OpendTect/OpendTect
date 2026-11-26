@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 
 #include "ascstream.h"
-#include "compoundkey.h"
 #include "conn.h"
 #include "file.h"
 #include "filepath.h"
@@ -426,7 +425,7 @@ bool IOObj::implIsLink() const
 
 bool IOObj::isKey( const char* ky )
 {
-    return IOM().isKey(ky);
+    return IOMan::isKey_( ky );
 }
 
 

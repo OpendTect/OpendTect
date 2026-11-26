@@ -86,7 +86,50 @@ class NumpyAllocator:
         return self.CFUNCTYPE(self)
     cfunc = property(getcfunc)
 
-libodbind = odc.getODBindLib()
+def build_config_from_argv(argv) -> odc.BuildConfig:
+    '''Build configuration requested by a ``--config`` command line option.
+
+    Pytest stores parsed options only after this module has been imported
+    from ``conftest.py``, so the option is read from ``sys.argv`` here.
+    With no option, Release is used when that library exists, otherwise Debug.
+    '''
+    value = None
+    args = list(argv)
+    idx = 0
+    while idx < len(args):
+        arg = args[idx]
+        if arg == '--config':
+            if idx + 1 >= len(args):
+                raise OSError('--config requires Release or Debug')
+            value = args[idx + 1]
+            idx += 2
+            continue
+        if arg.startswith('--config='):
+            value = arg.split('=', 1)[1]
+            idx += 1
+            continue
+        idx += 1
+
+    if value is None:
+        return odc.BuildConfig.AUTO
+    if value == 'Release':
+        return odc.BuildConfig.Release
+    if value == 'Debug':
+        return odc.BuildConfig.Debug
+    raise OSError('--config must be Release or Debug, got ' + value)
+
+bind_config = build_config_from_argv(sys.argv)
+libodbind = odc.getODBindLib(config=bind_config)
+if not libodbind:
+    requested = ''
+    if bind_config != odc.BuildConfig.AUTO:
+        requested = ' for configuration ' + bind_config.name
+    appl = os.environ.get('DTECT_APPL')
+    if appl:
+        raise OSError('ODBind library not found under DTECT_APPL=' + appl + requested)
+    raise OSError('ODBind library not found' + requested + '. Set DTECT_APPL to the '
+                  'OpendTect build or installation directory that contains relinfo')
+
 try:
   LIBODB = ct.CDLL(libodbind)
 except OSError:

@@ -135,7 +135,12 @@ dependencies = {
 solve-group = "shared"
 
 [environments.odbind.activation.env]
-PYTHONPATH = "$PIXI_PROJECT_ROOT/inst/bin/python"
+DTECT_APPL = "$PIXI_PROJECT_ROOT/build_pixi"
+PYTHONPATH = "$PIXI_PROJECT_ROOT/external/odpy:$PIXI_PROJECT_ROOT/plugins/ODBind/python"
+
+[environments.odbind.target.win-64.activation.env]
+DTECT_APPL = "$PIXI_PROJECT_ROOT/build_pixi"
+PYTHONPATH = "$PIXI_PROJECT_ROOT/external/odpy;$PIXI_PROJECT_ROOT/plugins/ODBind/python"
 
 [environments.odbind.tasks]
 python = {cmd="python"}
