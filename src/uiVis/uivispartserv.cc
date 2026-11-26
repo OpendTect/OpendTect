@@ -254,30 +254,8 @@ Pos::GeomID uiVisPartServer::getGeomID( const VisID& id ) const
 }
 
 
-SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
-{
-    RefMan<visSurvey::Scene> newscene = newscene_in;
-    if ( !newscene )
-	newscene = visSurvey::Scene::create();
-
-    mAttachCB( newscene->mouseposchange, uiVisPartServer::mouseMoveCB );
-    mAttachCB( newscene->keypressed, uiVisPartServer::keyEventCB );
-    mAttachCB( newscene->mouseclicked, uiVisPartServer::mouseEventCB );
-    scenes_ += newscene.ptr();
-    pickretriever_->addScene( newscene.ptr() );
-    if ( isSoloMode() )
-	displayids_ += TypeSet<VisID>();
-
-    const SceneID sceneid = newscene->getID();
-    newscene = nullptr;
-    nrscenesChange.trigger();
-    return sceneid;
-}
-
-
 typedef visSurvey::Scene* (*VSGSceneCreator)();
-typedef ui3DViewerBase* (*VSGViewerCreator)( uiParent*,visSurvey::Scene*,
-					    const char* );
+typedef ui3DViewerBase* (*VSGViewerCreator)( uiParent*,const char* );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
@@ -297,39 +275,42 @@ void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 }
 
 
-SceneID uiVisPartServer::addVSGScene( const uiString& nm )
+SceneID uiVisPartServer::addScene( bool isvsg, visSurvey::Scene* newscene_in )
 {
-    void* funcptr = getVSGFunction( "createVSGScene" );
-    if ( !funcptr )
-	return SceneID::udf();
+    RefMan<visSurvey::Scene> scene = newscene_in;
+    if ( !newscene_in && isvsg )
+    {
+	void* funcptr = getVSGFunction( "createVSGScene" );
+	if ( !funcptr )
+	    return SceneID::udf();
 
-    VSGSceneCreator creator = rCast( VSGSceneCreator, funcptr );
-    RefMan<visSurvey::Scene> scene = creator();
+	VSGSceneCreator creator = rCast( VSGSceneCreator, funcptr );
+	scene = creator();
+    }
+    else if ( !newscene_in )
+	scene = visSurvey::Scene::create();
+
     if ( !scene )
 	return SceneID::udf();
 
-    const SceneID sceneid = addScene( scene.ptr() );
-    if ( !sceneid.isValid() )
-	return SceneID::udf();
+    mAttachCB( scene->mouseposchange, uiVisPartServer::mouseMoveCB );
+    mAttachCB( scene->keypressed, uiVisPartServer::keyEventCB );
+    mAttachCB( scene->mouseclicked, uiVisPartServer::mouseEventCB );
+    scenes_ += scene.ptr();
+    pickretriever_->addScene( scene.ptr() );
+    if ( isSoloMode() )
+	displayids_ += TypeSet<VisID>();
 
-    if ( nm.isSet() )
-	setSceneName( sceneid, nm );
-
+    const SceneID sceneid = scene->getID();
+    scene = nullptr;
+    nrscenesChange.trigger();
     return sceneid;
 }
 
 
-ui3DViewerBase* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
-						  uiParent* parent,
+ui3DViewerBase* uiVisPartServer::createVSGViewer( uiParent* parent,
 						  const uiString& nm )
 {
-    if ( !parent )
-	return nullptr;
-
-    RefMan<visSurvey::Scene> scene = getScene( sceneid );
-    if ( !scene )
-	return nullptr;
-
     void* funcptr = getVSGFunction( "createVSGViewer" );
     if ( !funcptr )
 	return nullptr;
@@ -339,7 +320,7 @@ ui3DViewerBase* uiVisPartServer::createVSGViewer( const SceneID& sceneid,
 	title = nm.getFullString();
 
     VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
-    return creator( parent, scene.ptr(), title.buf() );
+    return creator( parent, title.buf() );
 }
 
 
@@ -1703,7 +1684,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	RefMan<visSurvey::Scene> newscene = visSurvey::Scene::create();
 	newscene->setID( VisID( sceneid.asInt() ) );
-	addScene( newscene.ptr() );
+	addScene( false, newscene.ptr() );
 
 	PtrMan<IOPar> scenepar = par.subselect( key.buf() );
 	if ( !scenepar )

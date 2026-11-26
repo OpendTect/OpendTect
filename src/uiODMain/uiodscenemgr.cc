@@ -200,11 +200,10 @@ void uiODSceneMgr::cleanUp( bool startnew )
 
 uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool vsg )
 {
-    SceneBundle* scn = nullptr;
+    SceneBundle* scn = vsg ? new uiODSceneMgr::VSGSceneBundle( mdiarea_ )
+			   : new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
     if ( vsg )
-	scn = new uiODSceneMgr::VSGSceneBundle( mdiarea_ );
-    else
-	scn = new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
+	scn->vwr3d_ = visServ().createVSGViewer( scn->mdiwin_ );
 
     mAttachCB( scn->mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     mAttachCB( scn->mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
@@ -222,44 +221,64 @@ uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool vsg )
 
 
 SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
-				   const uiString& name )
+				 const uiString& name, bool isvsg )
 {
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
 
-    auto* scn = dCast(OSGSceneBundle*,&mkNewScene());
-    if ( !scn )
-	return SceneID::udf();
-
-    auto* vwr3d = dCast(ui3DViewer*,scn->vwr3d_);
-    const SceneID sceneid = visServ().addScene();
-    RefMan<visSurvey::Scene> visscene = visServ().getScene( sceneid );
-    if ( visscene )
+    SceneBundle& scn = mkNewScene( isvsg );
+    const SceneID sceneid = scn.vwr3d_ ? visServ().addScene( isvsg )
+				       : SceneID::udf();
+    if ( !sceneid.isValid() )
     {
-	if ( vwr3d->getPolygonSelector() )
-	    visscene->setPolygonSelector( vwr3d->getPolygonSelector() );
-	if ( vwr3d->getSceneColTab() )
-	    visscene->setSceneColTab( vwr3d->getSceneColTab() );
+	removeScene( scn );
+	return SceneID::udf();
+    }
+
+    RefMan<visSurvey::Scene> visscene = visServ().getScene( sceneid );
+    scn.vwr3d_->setScene( visscene.ptr() );
+
+    uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
+					       toUiString(vwridx_) );
+    scn.mdiwin_->setTitle( title );
+    visServ().setSceneName( sceneid, title );
+    scn.vwr3d_->display( true );
+    scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
+					    : FontData() );
+    scn.mdiwin_->display( true, false, maximized );
+    actMode(0);
+
+    // Tree listeners add objects that read these
+    auto* osgvwr = dCast(ui3DViewer*,scn.vwr3d_);
+    if ( visscene && osgvwr )
+    {
+	if ( osgvwr->getPolygonSelector() )
+	    visscene->setPolygonSelector( osgvwr->getPolygonSelector() );
+	if ( osgvwr->getSceneColTab() )
+	    visscene->setSceneColTab( osgvwr->getSceneColTab() );
 	mAttachCB( visscene->sceneboundingboxupdated,
 		   uiODSceneMgr::newSceneUpdated );
     }
 
-    vwr3d->setScene( visscene.ptr() );
-    uiString title = uiStrings::phrJoinStrings( uiStrings::sScene(),
-					       toUiString(vwridx_) );
+    if ( !isvsg )
+	treeToBeAdded.trigger( sceneid );
+    initTree( scn, vwridx_ );
+    if ( !isvsg )
+	treeAdded.trigger( sceneid );
 
-    scn->mdiwin_->setTitle( title );
-    visServ().setSceneName( sceneid, title );
-    scn->vwr3d_->display( true );
-    scn->vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
-					    : FontData() );
-    mAttachCB( vwr3d->viewmodechanged, uiODSceneMgr::viewModeChg );
-    mAttachCB( vwr3d->pageupdown, uiODSceneMgr::pageUpDownPressed );
-    scn->mdiwin_->display( true, false, maximized );
-    actMode(0);
-    treeToBeAdded.trigger( sceneid );
-    initTree( *scn, vwridx_ );
-    treeAdded.trigger( sceneid );
+    if ( name.isSet() )
+	setSceneName( sceneid, name );
+
+    visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
+
+    if ( isvsg )
+    {
+	scn.vwr3d_->setStartupView();
+	return sceneid;
+    }
+
+    mAttachCB( osgvwr->viewmodechanged, uiODSceneMgr::viewModeChg );
+    mAttachCB( osgvwr->pageupdown, uiODSceneMgr::pageUpDownPressed );
 
     OSGSceneBundle* firstscene = nullptr;
     int nrodscenes = 0;
@@ -276,11 +295,11 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( nrodscenes>1 && firstscene )
     {
 	auto* firstvwr = dCast(ui3DViewer*,firstscene->vwr3d_);
-	vwr3d->setStereoType( firstvwr->getStereoType() );
-	vwr3d->setStereoOffset( firstvwr->getStereoOffset() );
-	scn->vwr3d_->showRotAxis( firstscene->vwr3d_->rotAxisShown() );
+	osgvwr->setStereoType( firstvwr->getStereoType() );
+	osgvwr->setStereoOffset( firstvwr->getStereoOffset() );
+	scn.vwr3d_->showRotAxis( firstscene->vwr3d_->rotAxisShown() );
 	if ( !firstvwr->isCameraPerspective() )
-	    vwr3d->toggleCameraType();
+	    osgvwr->toggleCameraType();
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
     }
     else if ( firstscene )
@@ -292,52 +311,19 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	    appl_.menuMgr().setCameraPixmap( isperspective );
 	    appl_.menuMgr().updateAxisMode( true );
 	}
-	scn->vwr3d_->showRotAxis( true );
+	scn.vwr3d_->showRotAxis( true );
     }
-
-    if ( name.isSet() )
-	setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, nullptr );
-    visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
-
-    vwr3d->setStartupView();
+    scn.vwr3d_->setStartupView();
 
     return sceneid;
 }
 
-
-SceneID uiODSceneMgr::addVSGScene( bool maximized, const uiString& nm )
+SceneID uiODSceneMgr::addScene( bool maximized, bool isvsg )
 {
-    auto* scn = dCast(VSGSceneBundle*,&mkNewScene(true));
-    if ( !scn )
-	return SceneID::udf();
-
-    const uiString title = nm.isSet() ? nm
-	: uiStrings::phrJoinStrings( uiStrings::sScene(),
-				     toUiString(vwridx_) );
-    const SceneID sceneid = visServ().addVSGScene( title );
-    if ( sceneid.isValid() )
-	scn->vwr3d_ = visServ().createVSGViewer( sceneid, scn->mdiwin_, title );
-
-    if ( !scn->vwr3d_ )
-    {
-	removeScene( *scn );
-	visServ().removeScene( sceneid );
-	return SceneID::udf();
-    }
-
-    scn->mdiwin_->setTitle( title );
-
-    // No treeToBeAdded, treeAdded or sceneClosed: their listeners add OSG
-    // objects to the scene
-    initTree( *scn, vwridx_ );
-
-    scn->vwr3d_->display( true );
-    scn->mdiwin_->display( true, false, maximized );
-    return sceneid;
+    return addScene( maximized, nullptr, uiString::empty(), isvsg );
 }
-
 
 uiODSceneMgr::SceneBundle* uiODSceneMgr::getScene( const SceneID& sceneid )
 {
@@ -374,7 +360,7 @@ SceneID uiODSceneMgr::addDefaultScene()
 	return SceneID::udf();
 
     if ( useVSGDefaultScene() )
-	return addVSGScene( true );
+	return addScene( true, true );
 
     return addScene( true );
 }

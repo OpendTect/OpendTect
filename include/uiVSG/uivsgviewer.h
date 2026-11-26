@@ -81,9 +81,9 @@ public:
     ODVsg::Scene*	getScene();
     const ODVsg::Scene*	getScene() const;
     SceneID		sceneID() const override;
-    void		setScene(ODVsg::Scene*);
-			//!<Only before the viewer is first shown. Without it
-			//!<the viewer makes a scene of its own
+    void		setScene(visBase::Scene*) override;
+			//!<Needs an ODVsg::Scene. Only before the viewer is
+			//!<first shown; without it the viewer makes its own
     ODVsg::TextureChannels* textureChannels();
 			/*!<The data of the test plane, null without it. */
 

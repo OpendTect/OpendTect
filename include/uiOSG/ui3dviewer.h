@@ -33,7 +33,7 @@ public:
     void		setMapView(bool yn);
     bool		isMapView() const;
 
-    void		setScene(visBase::Scene*);
+    void		setScene(visBase::Scene*) override;
     visBase::Scene*	getScene();
     const visBase::Scene* getScene() const;
     SceneID		sceneID() const override;

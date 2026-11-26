@@ -104,14 +104,14 @@ public:
 
     void		removeSelection();
 
-    SceneID		addScene(visSurvey::Scene* =nullptr);
-			/*!<Adds a scene. The argument is only used internally.
-			    Don't use the argument when calling from outside.
-			*/
-    SceneID		addVSGScene(const uiString& nm=uiString::empty());
-			/*!<Creates and registers the scene, no viewer */
-    ui3DViewerBase*	createVSGViewer(const SceneID&,uiParent*,
-					const uiString& nm);
+    SceneID		addScene(bool isvsg=false,
+				 visSurvey::Scene* newscene=nullptr);
+			/*!<Creates and registers a scene, no viewer.
+			    Pass a scene to register that one instead. */
+    ui3DViewerBase*	createVSGViewer(uiParent* =nullptr,
+					const uiString& nm=uiString::empty());
+			/*!<Without a scene: give it one with setScene
+			    before it is first shown */
 
     void		removeScene(const SceneID&);
     int			nrScenes() const;

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 class FontData;
+namespace visBase { class Scene; }
 
 mExpClass(uiOSG) ui3DViewerBase : public uiObject
 {
@@ -21,6 +22,7 @@ public:
 			~ui3DViewerBase();
 
     virtual SceneID	sceneID() const					= 0;
+    virtual void	setScene(visBase::Scene*)			= 0;
 
     virtual void	setViewMode(bool)				= 0;
     virtual bool	isViewMode() const				= 0;

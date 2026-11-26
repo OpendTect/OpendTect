@@ -1688,7 +1688,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mAddVSGSceneMnuItm:	sceneMgr().tile();
-				sceneMgr().addVSGScene(true); break;
+				sceneMgr().addScene( true, true ); break;
     case mAddTimeDepth2DMnuItm: applMgr().addTimeDepthScene(true); break;
     case mAddTimeDepth3DMnuItm: applMgr().addTimeDepthScene(false); break;
     case mAddHorFlat2DMnuItm:	applMgr().addHorFlatScene(true); break;
