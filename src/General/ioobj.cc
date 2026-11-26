@@ -527,6 +527,98 @@ BufferString IOObj::userName( BufferString* groupnm, bool resolve ) const
 }
 
 
+bool IOObj::belongsToCurrentUser() const
+{
+    const BufferString appuser = GetUserNm();
+    const BufferString softwareuser = GetSoftwareUser();
+    const BufferString interpuser = GetInterpreterName();
+    const BufferString sessionuser = GetSessionUserNm( appuser.buf() );
+    BufferString softsession;
+    if ( !softwareuser.isEmpty() )
+	softsession = GetSessionUserNm( softwareuser.buf() );
+
+    BufferStringSet ownnames;
+    if ( !appuser.isEmpty() )
+	ownnames.addIfNew( appuser.buf() );
+
+    if ( !sessionuser.isEmpty() )
+	ownnames.addIfNew( sessionuser.buf() );
+
+    if ( !softwareuser.isEmpty() )
+	ownnames.addIfNew( softwareuser.buf() );
+
+    if ( !softsession.isEmpty() )
+	ownnames.addIfNew( softsession.buf() );
+
+    if ( !interpuser.isEmpty() )
+	ownnames.addIfNew( interpuser.buf() );
+
+    // Software user and its session name. Set only when DTECT_USER is set,
+    // so these names are absent for a plain OS login.
+    BufferStringSet softnames;
+    if ( !softwareuser.isEmpty() )
+	softnames.addIfNew( softwareuser.buf() );
+
+    if ( !softsession.isEmpty() )
+	softnames.addIfNew( softsession.buf() );
+
+    BufferStringSet tokens;
+    FileMultiString createdby;
+    const bool hascreatedby =
+	    pars().get( sKey::CrBy(), createdby ) && !createdby.isEmpty();
+    if ( hascreatedby )
+    {
+	for ( int idx=0; idx<createdby.size(); idx++ )
+	{
+	    BufferString token( createdby[idx].buf() );
+	    token.trimBlanks();
+	    if ( !token.isEmpty() )
+		tokens.addIfNew( token );
+	}
+    }
+
+    if ( tokens.isEmpty() )
+    {
+	BufferString user( userName( nullptr, false ).buf() );
+	user.trimBlanks();
+	if ( !user.isEmpty() )
+	    tokens.addIfNew( user );
+
+	BufferStringSet ownerids;
+	if ( !appuser.isEmpty() )
+	    ownerids.addIfNew( appuser.buf() );
+
+	if ( !sessionuser.isEmpty() )
+	    ownerids.addIfNew( sessionuser.buf() );
+
+	return !tokens.isEmpty() && tokens.isSubsetOf( ownerids );
+    }
+
+    // A matching software user is enough, including on another OS account
+    // ("cases`arnaud6" while DTECT_USER is arnaud6).
+    for ( const auto* token : tokens )
+    {
+	if ( softnames.isPresent(token->buf()) )
+	    return true;
+    }
+
+    const BufferString& accountnm = *tokens.first();
+    const bool accountmatch = accountnm == appuser ||
+			       ( !sessionuser.isEmpty() &&
+				 accountnm == sessionuser );
+    if ( !accountmatch )
+	return false;
+
+    // No DTECT_USER: the OS account owns the entry, including one stamped
+    // with a software user ("arnaud`arnaud2"). With a software user set, every
+    // stored name must be ours so a shared account stays split.
+    if ( softwareuser.isEmpty() )
+	return true;
+
+    return tokens.isSubsetOf( ownnames );
+}
+
+
 void IOObj::implFileNames( BufferStringSet& fnames ) const
 {
     PtrMan<Translator> tr = createTranslator();

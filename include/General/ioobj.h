@@ -140,6 +140,7 @@ public:
     virtual BufferString	mainFileName() const { return fullUserExpr(); }
     virtual BufferString	userName(BufferString* groupnm=nullptr,
 					 bool resolve=true) const;
+    virtual bool		belongsToCurrentUser() const;
     virtual void		implFileNames(BufferStringSet&) const;
 
     virtual bool		implIsLink() const;

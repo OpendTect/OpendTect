@@ -52,7 +52,6 @@ ________________________________________________________________________
 #include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "moddepmgr.h"
 #include "mousecursor.h"
 #include "nrbytes2string.h"
@@ -66,7 +65,6 @@ ________________________________________________________________________
 #include "odver.h"
 #include "plugins.h"
 #include "ptrman.h"
-#include "separstr.h"
 #include "settings.h"
 #include "survgeom.h"
 #include "survinfo.h"
@@ -1117,27 +1115,6 @@ void uiODMain::warnAutoSaveNoSession()
 }
 
 
-static bool isSessionCreatedByCurrentUser( const IOObj& ioobj )
-{
-    BufferString crby;
-    if ( !ioobj.pars().get(sKey::CrBy(),crby) || crby.isEmpty() )
-	return true;
-
-    const FileMultiString fms( crby );
-    const BufferString osuser( GetUserNm() );
-    const BufferString swuser( GetSoftwareUser() );
-    if ( !osuser.isEmpty() && fms.size()>=1 && fms[0]==osuser )
-	return true;
-
-    if ( !swuser.isEmpty() )
-	for ( int idx=0; idx<fms.size(); idx++ )
-	    if ( fms[idx] == swuser )
-		return true;
-
-    return crby == GetInterpreterName();
-}
-
-
 static bool canOverwriteSession( const MultiID& sessid )
 {
     if ( sessid.isUdf() )
@@ -1147,7 +1124,7 @@ static bool canOverwriteSession( const MultiID& sessid )
     if ( !ioobj || ioobj->implReadOnly() || IOM().isReadOnly(ioobj->key()) )
 	return false;
 
-    return isSessionCreatedByCurrentUser( *ioobj );
+    return ioobj->belongsToCurrentUser();
 }
 
 
