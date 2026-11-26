@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "testprog.h"
 
 #include "datapack.h"
+#include "timefun.h"
 #include "zdomain.h"
 
 
@@ -129,6 +130,19 @@ static bool testOSVersion()
 
     return true;
 }
+
+static bool testTimeConversion()
+{
+    const od_int64 msecs = 1234567;
+    const std::timespec ts = Time::fromMSecs( msecs );
+    mRunStandardTest( ts.tv_sec == 1234 && ts.tv_nsec == 567000000,
+		      "Milliseconds to seconds and nanoseconds" );
+    mRunStandardTest( Time::toMSecs(ts) == msecs,
+		      "Milliseconds converted back" );
+
+    return true;
+}
+
 
 #define mFuncInMacro( dummy ) BufferString( __func__ )
 
@@ -253,6 +267,7 @@ int mTestMainFnName( int argc, char** argv )
         || !testPointerAlignment()
 	|| !testFuncName()
 	|| (__iswin__ && !test64BitDetection())
+	|| !testTimeConversion()
 	|| !testZDomain() )
 	return 1;
 

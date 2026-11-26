@@ -171,7 +171,7 @@ od_int64 toMSecs( const std::timespec& t )
 std::timespec fromMSecs( od_int64 msecs )
 {
     std::timespec ret;
-    ret.tv_sec = std::time_t (msecs % 1000);
+    ret.tv_sec = std::time_t (msecs / 1000);
     ret.tv_nsec = long ((msecs-ret.tv_sec*1000) * 1e6 );
     return ret;
 }
