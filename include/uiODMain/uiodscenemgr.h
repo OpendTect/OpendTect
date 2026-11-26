@@ -10,18 +10,20 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
+#include "emposid.h"
+#include "flatview.h"
+
 #include "ui3dviewer.h"
 #include "uiodapplmgr.h"
 #include "uisettings.h"
-
-#include "datapack.h"
-#include "emposid.h"
+#include "uitreeitemmanager.h"
 #include "uivispartserv.h"
 
 class BufferStringSet;
 class RegularSeisDataPack;
 class Timer;
 class ZAxisTransform;
+
 class uiDockWin;
 class uiFlatViewWin;
 class uiMdiArea;
@@ -71,13 +73,13 @@ public:
 
     void			setToViewMode(bool yn=true);
     void			setToWorkMode(uiVisPartServer::WorkMode wm);
-    void			viewModeChg(CallBacker* cb=0);
-    void			actMode(CallBacker* cb=0);
-    void			viewMode(CallBacker* cb=0);
+    void			viewModeChgCB(CallBacker*);
+    void			actModeCB(CallBacker*);
+    void			viewModeCB(CallBacker*);
     bool			inViewMode() const;
     Notifier<uiODSceneMgr>	viewModeChanged;
 
-    void			pageUpDownPressed(CallBacker*);
+    void			pageUpDownPressedCB(CallBacker*);
 
     void			updateStatusBar();
     void			setStereoType(int);
@@ -217,7 +219,7 @@ protected:
     void			mdiAreaChanged(CallBacker*);
     void			sceneChanged(SceneID);
 
-    int				vwridx_;
+    int				vwridx_		= 0;
     uiTreeFactorySet*		tifs_;
     uiWindowGrabber*		wingrabber_;
 

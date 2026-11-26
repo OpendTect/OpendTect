@@ -158,7 +158,7 @@ void highlighted( const QUrl& url )
 
 void anchorClicked( const QUrl& lnk )
 {
-    breceiver_->lastlink_ = lnk.toString().toLatin1().data();
+    breceiver_->lastlink_ = lnk.toString();
     breceiver_->linkClicked.trigger( *breceiver_ );
 }
 

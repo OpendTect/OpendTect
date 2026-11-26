@@ -34,6 +34,10 @@ public:
 				int role) override;
     void		beginReset();
     void		endReset();
+    void		notifyCheck(int row,int col);
+    void		resetChecks(int nr);
+    int			checkedState(int row) const;
+    bool		setCheckedState(int row,bool yn);
     bool		collectEditRequests(const TableModel::EditRequest&,
 					    TypeSet<TableModel::EditRequest>&);
     bool		applyEditRequest(const TableModel::EditRequest&,
@@ -46,6 +50,7 @@ public:
 protected:
     TableModel&		model_;
     QHash<int,int>	colalignments_;
+    BoolTypeSet		checks_;
 };
 
 
@@ -186,11 +191,54 @@ QVariant ODAbstractTableModel::headerData( int rowcol, Qt::Orientation orient,
 }
 
 
+void ODAbstractTableModel::notifyCheck( int row, int col )
+{
+    const QModelIndex qmodidx = index( row, col );
+    if ( qmodidx.isValid() )
+	emit dataChanged( qmodidx, qmodidx, {Qt::CheckStateRole} );
+}
+
+
+void ODAbstractTableModel::resetChecks( int nr )
+{
+    checks_.setEmpty();
+    if ( nr > 0 )
+	checks_.setSize( nr, false );
+}
+
+
+int ODAbstractTableModel::checkedState( int row ) const
+{
+    if ( !checks_.validIdx(row) )
+	return -1;
+
+    return checks_[row] ? 1 : 0;
+}
+
+
+bool ODAbstractTableModel::setCheckedState( int row, bool yn )
+{
+    if ( !checks_.validIdx(row) || bool(checks_[row])==yn )
+	return false;
+
+    checks_[row] = yn;
+    return true;
+}
+
+
 void ODAbstractTableModel::beginReset()
-{ beginResetModel(); }
+{
+    checks_.setEmpty();
+    beginResetModel();
+}
 
 void ODAbstractTableModel::endReset()
-{ endResetModel(); }
+{
+    if ( model_.isRowCheckable() )
+	checks_.setSize( model_.nrRows(), false );
+
+    endResetModel();
+}
 
 
 void ODAbstractTableModel::rowBulkDataChanged( int row,
@@ -448,6 +496,7 @@ bool TableModel::EditRequest::operator!=( const EditRequest& oth ) const
 
 TableModel::TableModel()
     : editRequested(this)
+    , checkStateChanged(this)
 {
     odtablemodel_ = new ODAbstractTableModel(*this);
 }
@@ -462,6 +511,43 @@ TableModel::~TableModel()
 QAbstractTableModel* TableModel::getAbstractModel()
 {
     return odtablemodel_;
+}
+
+
+bool TableModel::isRowCheckable() const
+{
+    return flags( 0, 0 ) & ItemIsUserCheckable;
+}
+
+
+void TableModel::setRowCheckable( bool )
+{
+    if ( !odtablemodel_ )
+	return;
+
+    odtablemodel_->resetChecks( isRowCheckable() ? nrRows() : 0 );
+}
+
+
+void TableModel::setChecked( int row, int col, int val )
+{
+    if ( !odtablemodel_ || !isRowCheckable() || col!=0 )
+	return;
+
+    if ( !odtablemodel_->setCheckedState(row,val==1) )
+	return;
+
+    odtablemodel_->notifyCheck( row, col );
+    checkStateChanged.trigger();
+}
+
+
+int TableModel::isChecked( int row, int col ) const
+{
+    if ( !odtablemodel_ || !isRowCheckable() || col!=0 )
+	return -1;
+
+    return odtablemodel_->checkedState( row );
 }
 
 

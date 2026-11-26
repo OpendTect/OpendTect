@@ -94,8 +94,10 @@ public:
     virtual Alignment		columnAlignment(int col) const;
     void			setColumnAlignment(int col,const Alignment&);
     virtual PixmapDesc		pixmap(int row,int col) const;
-    virtual void		setChecked(int row,int col,int val)	{}
-    virtual int			isChecked(int row,int col) const  { return -1; }
+    virtual void		setRowCheckable(bool);
+    virtual bool		isRowCheckable() const;
+    virtual void		setChecked(int row,int col,int val);
+    virtual int			isChecked(int row,int col) const;
     virtual uiString		headerText(int rowcol,OD::Orientation) const =0;
     virtual uiString		tooltip(int row,int col) const;
     virtual const EnumDef*	getEnumDef(int col) const
@@ -115,6 +117,7 @@ public:
 						 bool useoldval);
 
     CNotifier<TableModel,const EditRequest&>	editRequested;
+    Notifier<TableModel>			checkStateChanged;
 
 protected:
 

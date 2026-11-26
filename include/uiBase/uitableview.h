@@ -29,6 +29,7 @@ public:
 				  NoSelection=0 };
     enum ResizeMode		{ Interactive=0, Fixed=2, Stretch=1,
 				  ResizeToContents=3 };
+    enum RowHeightPol		{ Default, Compact };
 
 				uiTableView(uiParent*,const char* nm);
 				~uiTableView();
@@ -51,6 +52,7 @@ public:
 
     void			setRowHeight(int height);
     void			setRowHeight(int row,int height);
+    void			setRowHeightPolicy(RowHeightPol);
     void			setRowResizeMode(ResizeMode);
 				//!<Default is ResizeToContents
 
@@ -108,6 +110,8 @@ public:
 				// source model to filter model
     RowCol			mapToSource(const RowCol&) const;
 				// filter model to source model
+    void			setRowTextFilter(const char*);
+    void			setShowCheckedOnly(bool yn);
 
     void			setSelectionBehavior(SelectionBehavior);
     SelectionBehavior		getSelectionBehavior() const;
@@ -142,7 +146,8 @@ public:
 						   TableModel::CellType,
 						   char format='g',
 						   int precision=6);
-    void			setColumnWidth(int col,int width );
+    void			setColumnWidth(int col,int width);
+    int				columnWidth(int col) const;
 
     TableModel::CellType	getCellType(int col) const;
 

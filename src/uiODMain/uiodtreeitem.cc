@@ -10,10 +10,10 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
 
-#include "keyboardevent.h"
 #include "settings.h"
+#include "vissurvscene.h"
+
 #include "ui3dviewer.h"
-#include "uimain.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uiscenepropdlg.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "vissurvscene.h"
 
 
 const char* uiODTreeTop::sceneidkey()		{ return "Sceneid"; }
@@ -88,8 +87,8 @@ void uiODTreeTop::loopOverChildrenIds( TypeSet<VisID>& dispids,
 				    const ObjectSet<uiTreeItem>& childrenlist )
 {
     for ( int idx=0; idx<childrenlist.size(); idx++ )
-	loopOverChildrenIds( dispids, selectedid,
-			     usechecked, childrenlist[idx]->children_ );
+	loopOverChildrenIds( dispids, selectedid, usechecked,
+			     childrenlist[idx]->children_ );
 
     for ( int idy=0; idy<childrenlist.size(); idy++ )
     {
@@ -134,7 +133,8 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
 bool uiODTreeItem::init()
 {
     const char* iconnm = iconName();
-    if ( iconnm ) uitreeviewitem_->setIcon( 0, iconnm );
+    if ( iconnm )
+	uitreeviewitem_->setIcon( 0, iconnm );
 
     return uiTreeItem::init();
 }
@@ -226,6 +226,7 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 	    mDynamicCastGet(uiODDisplayTreeItem*,itm,children_[0])
 	    if ( !itm )
 		continue;
+
 	    itm->prepareForShutdown();
 	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
 	    removeChild( itm );
@@ -235,7 +236,9 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 
 
 void uiODTreeItem::setMoreObjectsToDoHint( bool yn )
-{ applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn ); }
+{
+    applMgr()->visServer()->setMoreObjectsToDoHint( sceneID(), yn );
+}
 
 
 bool uiODTreeItem::getMoreObjectsToDoHint() const
@@ -330,9 +333,12 @@ void uiODParentTreeItem::show( bool yn )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODParentTreeItem*,pitm,getChild(idx))
-	if ( pitm ) pitm->show( doshow );
+	if ( pitm )
+	    pitm->show( doshow );
+
 	mDynamicCastGet(uiODDisplayTreeItem*,itm,getChild(idx))
-	if ( itm ) itm->show( doshow );
+	if ( itm )
+	    itm->show( doshow );
     }
 }
 
@@ -353,9 +359,12 @@ void uiODParentTreeItem::checkCB( CallBacker* )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODParentTreeItem*,pitm,getChild(idx))
-	if ( pitm ) pitm->show( doshow );
+	if ( pitm )
+	    pitm->show( doshow );
+
 	mDynamicCastGet(uiODDisplayTreeItem*,itm,getChild(idx))
-	if ( itm ) itm->show( doshow && itm->isChecked() );
+	if ( itm )
+	    itm->show( doshow && itm->isChecked() );
     }
 }
 
@@ -423,12 +432,11 @@ void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
     mAddMenuOrTBItem( istb, nullptr, menu, &imageitem_, true, false );
     mAddMenuOrTBItem( istb, nullptr, menu, &coltabitem_, true, false );
-    mAddMenuOrTBItem( istb, nullptr, menu, &workareaitem_,
-		      true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, &workareaitem_, true, false );
 
     bool enabdump = true;
-    Settings::common().getYN(
-		IOPar::compKey("dTect","Dump OI Menu"), enabdump );
+    Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"),
+			      enabdump );
     mAddMenuOrTBItem( istb, 0, menu, &dumpivitem_, enabdump, false );
 }
 

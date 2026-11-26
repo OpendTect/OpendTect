@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "sets.h"
 #include "transl.h"
 #include "iopar.h"
 
@@ -40,6 +39,17 @@ public:
 
     static void		getStartupData(bool& douse,MultiID&);
     static void		setStartupData(bool,const MultiID&);
+
+    static void		getAutoSaveData(bool& douse,int& intervalmin);
+    static void		setAutoSaveData(bool douse,int intervalmin);
+    static bool		getAutoSaveOverwriteSelected();
+    static void		setAutoSaveOverwriteSelected(bool);
+    static const char*	sAutoSaveSessionName();
+
+    // All intervals are in minutes
+    static int		cAutoSaveMinInterval()		{ return 5; }
+    static int		cAutoSaveMaxInterval()		{ return 60; }
+    static int		cAutoSaveDefInterval()		{ return 15; }
 
 protected:
 
@@ -73,6 +83,9 @@ protected:
 
     static const char*	sKeyUseStartup();
     static const char*	sKeyStartupID();
+    static const char*	sKeyUseAutoSave();
+    static const char*	sKeyAutoSaveInterval();
+    static const char*	sKeyAutoSaveOverwriteSelected();
 };
 
 
@@ -141,4 +154,5 @@ public:
 protected:
 
     void			mkFileInfo() override;
+    void			selChgCB(CallBacker*);
 };

@@ -79,7 +79,8 @@ static bool fnmIsURI( const char*& fnm )
 	{
 	    for ( const char* ptr=fnm; BufferString(ptr)!=ptrprotsep; ptr++ )
 	    {
-		if ( !isalnum(*ptr) || (ptr == fnm && isdigit(*ptr)) )
+		const unsigned char ch = sCast(unsigned char,*ptr);
+		if ( !isalnum(ch) || (ptr == fnm && isdigit(ch)) )
 		    return false;
 	    }
 	    return true;

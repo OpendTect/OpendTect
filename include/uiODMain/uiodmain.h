@@ -78,11 +78,15 @@ public:
     void		saveSession();	//!< pops up the save session dialog
     void		restoreSession(); //!< pops up the restore session dlg
     void		autoSession(); //!< pops up the auto session dlg
+    void		autoSaveSession(); //!< pops up the auto-save dlg
     bool		isRestoringSession()	{ return restoringsess_; }
     uiStringSet&	restoreMsgs()		{ return restoremsgs_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
     void		setProgInfo(const char*);
+    void		setTransientStatusMsg(const uiString&);
+			/*!< Left status-bar message, kept for a few seconds. */
+    bool		hasTransientStatusMsg() const;
 
     static uiString	sODDesc()
 				{ return tr("OpendTect Main Window"); }
@@ -113,6 +117,7 @@ protected:
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
     void		handleStartupSession();
+    bool		restoreRestartPars();
     void		restoreSession(const IOObj*);
 
 private:
@@ -120,19 +125,29 @@ private:
     bool		buildUI();
 
     CtxtIOObj*		getUserSessionIOData(bool);
+    bool		saveSessionDlg();
+    bool		askCloseWithoutSession();
     bool		updateSession();
+    void		resolveAutoSaveOverwrite();
+    void		warnAutoSaveNoSession();
     void		doRestoreSession();
 
     Timer&		sesstimer_;
     Timer&		memtimer_;
     Timer&		newsurvinittimer_;
     Timer&		autoloadsessiontimer_;
+    Timer&		autosavesessiontimer_;
+    Timer&		autosavestatustimer_;
 
     bool		neednewsurvinit_	= false;
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);
     void		autoloadSessionCB(CallBacker*);
+    void		autoSaveSessionCB(CallBacker*);
+    void		autoSaveStatusTimerCB(CallBacker*);
+    void		updateAutoSaveTimer();
+    void		updateAutoSaveTimer(bool showstatus);
 
     void		updateCaptionCB(CallBacker*);
 

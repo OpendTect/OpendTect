@@ -131,6 +131,25 @@ static bool testAbs()
 }
 
 
+static bool testUtf8Variables()
+{
+    const char* varnm = "J\xC3\xBCrgen_\xE4\xBD\xA0\xE5\xA5\xBD";
+    const BufferString expression( varnm, " + 2" );
+    Math::ExpressionParser mep( expression.buf() );
+    PtrMan<Math::Expression> me = mep.parse();
+    mRunStandardTest( me, "Parsing an expression with a UTF-8 variable" );
+    mRunStandardTest( me->nrVariables() == 1 &&
+		      StringView(me->fullVariableExpression(0)) == varnm,
+		      "UTF-8 variable name" );
+
+    me->setVariableValue( 0, 3 );
+    mRunStandardTest( mIsEqual(me->getValue(),5,1e-5),
+		      "Value of an expression with a UTF-8 variable" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -144,6 +163,8 @@ int mTestMainFnName( int argc, char** argv )
 	if ( !testParenthesis() )
 	    return 1;
 	if ( !testAbs() )
+	    return 1;
+	if ( !testUtf8Variables() )
 	    return 1;
     }
 

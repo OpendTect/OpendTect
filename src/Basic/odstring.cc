@@ -199,6 +199,15 @@ unsigned int StringBase::count( char tocount ) const
 unsigned int StringBase::getLevenshteinDist( const char* s,
 					     bool casesens ) const
 {
+    if ( !casesens )
+    {
+	BufferString upstr( str() );
+	BufferString ups( s );
+	upstr.toUpper();
+	ups.toUpper();
+	return upstr.getLevenshteinDist( ups.buf(), true );
+    }
+
     const unsigned int len1 = size();
     const unsigned int len2 = StringView(s).size();
     if ( len1 == 0 ) return len2;
@@ -217,9 +226,7 @@ unsigned int StringBase::getLevenshteinDist( const char* s,
     {
 	for ( unsigned int idx1=1; idx1<=len1; idx1++ )
 	{
-	    const bool iseq = casesens ? s1[idx1-1] == s2[idx2-1]
-			: toupper(s1[idx1-1]) == toupper(s2[idx2-1]);
-	    if ( iseq )
+	    if ( s1[idx1-1] == s2[idx2-1] )
 		d.set( idx1, idx2, d.get(idx1-1,idx2-1) );
 	    else
 	    {

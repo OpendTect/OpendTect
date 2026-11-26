@@ -10,11 +10,14 @@ ________________________________________________________________________
 #include "odsession.h"
 
 #include "ascstream.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "uiioobjmanip.h"
+#include "uiioobjselgrp.h"
 #include "uistrings.h"
 #include "od_helpids.h"
 
@@ -33,12 +36,19 @@ const char* ODSession::trackprefix()	{ return "Tracking"; }
 const char* ODSession::pluginprefix()	{ return "Plugins"; }
 const char* ODSession::vwr2dprefix()	{ return "2D.Viewer"; }
 const char* ODSession::sKeyUseStartup() { return "dTect.Use startup session"; }
-const char* ODSession::sKeyStartupID()  { return "Session.Auto ID"; }
+const char* ODSession::sKeyStartupID()	    { return "Session.Auto ID"; }
+const char* ODSession::sKeyUseAutoSave()
+{ return "dTect.Use autosave session"; }
+const char* ODSession::sKeyAutoSaveInterval()
+{ return "dTect.Autosave session interval"; }
+const char* ODSession::sKeyAutoSaveOverwriteSelected()
+{ return "dTect.Autosave overwrite selected"; }
+const char* ODSession::sAutoSaveSessionName()
+{ return "[Default auto-save]"; }
 
 
 ODSession::ODSession()
-{
-}
+{}
 
 
 ODSession::~ODSession()
@@ -113,7 +123,9 @@ bool ODSession::usePar( const IOPar& par )
 	seispars_ = *seissubpars;
 
     PtrMan<IOPar> vissubpars = par.subselect( visprefix() );
-    if ( !vissubpars ) return false;
+    if ( !vissubpars )
+	return false;
+
     vispars_ = *vissubpars;
 
     PtrMan<IOPar> scenesubpars = par.subselect( sceneprefix() );
@@ -199,7 +211,8 @@ void ODSession::getStartupData( bool& douse, MultiID& mid )
 
 void ODSession::setStartupData( bool douse, const MultiID& id )
 {
-    bool curuse = false; MultiID curid;
+    bool curuse = false;
+    MultiID curid;
     getStartupData( curuse, curid );
     if ( curuse != douse )
     {
@@ -212,6 +225,49 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
 	SI().getPars().set( sKeyStartupID(), id );
 	SI().savePars();
     }
+}
+
+
+void ODSession::getAutoSaveData( bool& douse, int& intervalmin )
+{
+    douse = true;
+    intervalmin = cAutoSaveDefInterval();
+    Settings::common().getYN( sKeyUseAutoSave(), douse );
+    Settings::common().get( sKeyAutoSaveInterval(), intervalmin );
+    if ( intervalmin < cAutoSaveMinInterval() )
+	intervalmin = cAutoSaveMinInterval();
+
+    if ( intervalmin > cAutoSaveMaxInterval() )
+	intervalmin = cAutoSaveMaxInterval();
+}
+
+
+void ODSession::setAutoSaveData( bool douse, int intervalmin )
+{
+    if ( intervalmin < cAutoSaveMinInterval() )
+	intervalmin = cAutoSaveMinInterval();
+
+    if ( intervalmin > cAutoSaveMaxInterval() )
+	intervalmin = cAutoSaveMaxInterval();
+
+    Settings::common().setYN( sKeyUseAutoSave(), douse );
+    Settings::common().set( sKeyAutoSaveInterval(), intervalmin );
+    Settings::common().write();
+}
+
+
+bool ODSession::getAutoSaveOverwriteSelected()
+{
+    bool yn = false;
+    Settings::common().getYN( sKeyAutoSaveOverwriteSelected(), yn );
+    return yn;
+}
+
+
+void ODSession::setAutoSaveOverwriteSelected( bool yn )
+{
+    Settings::common().setYN( sKeyAutoSaveOverwriteSelected(), yn );
+    Settings::common().write();
 }
 
 
@@ -267,7 +323,7 @@ bool ODSessionTranslator::store( const ODSession& session,
     }
 
     PtrMan<ODSessionTranslator> trans
-	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
+		= dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )
     {
 	err = tr("Selected object is not an OpendTect Session");
@@ -346,12 +402,32 @@ uiSessionMan::uiSessionMan( uiParent* p )
 		 ODSessionTranslatorGroup::ioContext())
 {
     createDefaultUI();
+    mAttachCB( selgrp_->selectionChanged, uiSessionMan::selChgCB );
+    mAttachCB( selgrp_->itemChosen, uiSessionMan::selChgCB );
+    selChgCB( nullptr );
     mTriggerInstanceCreatedNotifier();
 }
 
 
 uiSessionMan::~uiSessionMan()
 {
+    detachAllNotifiers();
+}
+
+
+void uiSessionMan::selChgCB( CallBacker* )
+{
+    uiIOObjManipGroup* grp = selgrp_ ? selgrp_->getManipGroup() : nullptr;
+    if ( !grp || !selgrp_ )
+	return;
+
+    const MultiID mid = selgrp_->currentID();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj || ioobj->name()!=ODSession::sAutoSaveSessionName() )
+	return;
+
+    grp->enableRename( false, tr(
+		"The default auto-save Session cannot be renamed") );
 }
 
 
@@ -363,7 +439,6 @@ void uiSessionMan::mkFileInfo()
 	return;
     }
 
-    BufferString txt;
-    txt += getFileInfo();
+    const BufferString txt = getFileInfo();
     setInfo( txt );
 }

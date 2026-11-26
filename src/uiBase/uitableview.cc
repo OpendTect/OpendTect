@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiicon.h"
 
 #include "tablemodel.h"
+#include "globexpr.h"
 
 #include "q_uiimpl.h"
 
@@ -38,9 +39,75 @@ ________________________________________________________________________
 #include <QTableView>
 #include <QUndoCommand>
 
+class ODRowFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+void setRowTextFilter( const char* txt )
+{
+    filt_.set( txt ? txt : "" );
+    GlobExpr::validateFilterString( filt_ );
+    if ( filt_ != "*" )
+    {
+	if ( !filt_.startsWith("*") )
+	    filt_.insertAt( 0, "*" );
+
+	if ( !filt_.endsWith("*") )
+	    filt_.add( "*" );
+    }
+
+    invalidateFilter();
+}
+
+
+void setShowCheckedOnly( bool yn )
+{
+    onlychecked_ = yn;
+    invalidateFilter();
+}
+
+protected:
+
+bool filterAcceptsRow( int sourcerow,
+		       const QModelIndex& sourceparent ) const override
+{
+    const QAbstractItemModel* src = sourceModel();
+    if ( !src )
+	return true;
+
+    if ( onlychecked_ )
+    {
+	const QModelIndex idx = src->index( sourcerow, 0, sourceparent );
+	if ( src->data(idx,Qt::CheckStateRole).toInt() != int(Qt::Checked) )
+	    return false;
+    }
+
+    if ( filt_.isEmpty() || filt_ == "*" )
+	return true;
+
+    const GlobExpr ge( filt_.buf(), OD::CaseInsensitive );
+    const int nrcols = src->columnCount( sourceparent );
+    for ( int col=0; col<nrcols; col++ )
+    {
+	const QModelIndex idx = src->index( sourcerow, col, sourceparent );
+	const QByteArray bytes = src->data( idx, Qt::DisplayRole )
+				     .toString().toUtf8();
+	if ( ge.matches(bytes.constData()) )
+	    return true;
+    }
+
+    return false;
+}
+
+    BufferString	filt_;
+    bool		onlychecked_		= false;
+
+};
+
+
 class ODStyledItemDelegate : public QStyledItemDelegate
 {
 public:
+
 ODStyledItemDelegate( QObject* parent )
     : QStyledItemDelegate(parent)
 {}
@@ -57,6 +124,7 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	myoption.font.setBold( true );
     else
 	myoption.font.setBold( false );
+
     initStyleOption( &myoption, index );
 
     // Give cells their original background color
@@ -72,6 +140,37 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 
     QStyledItemDelegate::paint( painter, myoption, index );
 }
+
+
+void paintCell( QPainter* painter, const QStyleOptionViewItem& option,
+		const QModelIndex& index, bool drawcheck ) const
+{
+    QStyleOptionViewItem myoption = option;
+    if ( option.state & QStyle::State_Selected )
+	myoption.font.setBold( true );
+    else
+	myoption.font.setBold( false );
+
+    initStyleOption( &myoption, index );
+    if ( !drawcheck )
+	myoption.features &= ~QStyleOptionViewItem::HasCheckIndicator;
+
+    myoption.fontMetrics = QFontMetrics( myoption.font );
+    const QWidget* widget = myoption.widget;
+    QStyle* style = widget ? widget->style() : QApplication::style();
+    style->drawControl( QStyle::CE_ItemViewItem, &myoption, painter, widget );
+}
+
+
+QSize sizeHint( const QStyleOptionViewItem& option,
+		const QModelIndex& index ) const override
+{
+    QStyleOptionViewItem myoption = option;
+    myoption.font.setBold( true );
+    myoption.fontMetrics = QFontMetrics( myoption.font );
+    return QStyledItemDelegate::sizeHint( myoption, index );
+}
+
 
 TableModel::CellType cellType() const
 {
@@ -93,9 +192,9 @@ DecorationItemDelegate()
 {}
 
 static const int sXPosPadding = 2;
-static const int sPmScalePadding = 10;
+static const int sIconSz = 16;
 
-const uiPixmap* createPixmap( const QVariant& qvar, QRect rect ) const
+const uiPixmap* createPixmap( const QVariant& qvar, qreal dpr ) const
 {
     const QString qstr = qvar.toString();
     const BufferString desc( qstr );
@@ -108,9 +207,24 @@ const uiPixmap* createPixmap( const QVariant& qvar, QRect rect ) const
 	return nullptr;
 
     auto* pm = new uiPixmap( pd );
-    BufferString pmsrc = pm->source();
-    if ( pm && pmsrc != PixmapDesc::sKeySingleColorSrc() )
-	pm->scaleToHeight( rect.height() - sPmScalePadding );
+    if ( !pm->qpixmap() || pm->qpixmap()->isNull() )
+	return pm;
+
+    const BufferString pmsrc = pm->source();
+    if ( pmsrc == PixmapDesc::sKeySingleColorSrc() )
+	return pm;
+
+    if ( dpr < 1. )
+	dpr = 1.;
+
+    const int physh = qRound( sIconSz * dpr );
+    QPixmap scaled = pm->qpixmap()->scaledToHeight( physh,
+						    Qt::SmoothTransformation );
+    if ( !scaled.isNull() )
+    {
+	scaled.setDevicePixelRatio( dpr );
+	*pm->qpixmap() = scaled;
+    }
 
     return pm;
 }
@@ -129,18 +243,68 @@ void paint( QPainter* painter, const QStyleOptionViewItem& option,
 	    painter->fillRect( option.rect, bgcol );
     }
 
+    const qreal dpr = painter->device() ? painter->device()->devicePixelRatio()
+					: 1.;
     const QVariant qvar = index.data( Qt::DecorationRole );
-    ConstPtrMan<uiPixmap> pm = createPixmap( qvar, option.rect );
-    ODStyledItemDelegate::paint( painter, option, index );
-    if ( pm )
+    ConstPtrMan<uiPixmap> pm = createPixmap( qvar, dpr );
+    const QPixmap* qpm = pm ? pm->qpixmap() : nullptr;
+    int checkw = 0;
+    QStyleOptionViewItem indopt;
+    const QWidget* checkwidget = nullptr;
+    QStyle* checkstyle = nullptr;
+    if ( index.flags() & Qt::ItemIsUserCheckable )
     {
-	const QPixmap* qpm = pm->qpixmap();
-	const int qpmwidth = qpm->rect().width();
-	const int qpmheight = qpm->rect().height();
-	const int xpos = option.rect.left() + sXPosPadding;
-	const int ypos = option.rect.center().y() - qpmheight/2;
-	painter->drawPixmap( xpos, ypos, qpmwidth, qpmheight, *qpm );
+	QStyleOptionViewItem chkopt = option;
+	initStyleOption( &chkopt, index );
+	checkwidget = chkopt.widget;
+	checkstyle = checkwidget ? checkwidget->style()
+				 : QApplication::style();
+	const QRect crect = checkstyle->subElementRect(
+		QStyle::SE_ItemViewItemCheckIndicator, &chkopt, checkwidget );
+	indopt = chkopt;
+	indopt.rect = crect;
+	indopt.state &= ~(QStyle::State_On | QStyle::State_Off
+			  | QStyle::State_NoChange);
+	if ( indopt.checkState==Qt::Checked )
+	    indopt.state |= QStyle::State_On;
+	else if ( indopt.checkState==Qt::PartiallyChecked )
+	    indopt.state |= QStyle::State_NoChange;
+	else
+	    indopt.state |= QStyle::State_Off;
+
+	checkw = crect.right() - option.rect.left() + sXPosPadding;
     }
+
+    QStyleOptionViewItem textopt = option;
+    int textleft = option.rect.left() + checkw;
+    if ( qpm && !qpm->isNull() )
+	textleft += sXPosPadding + qpm->width() + sXPosPadding;
+
+    textopt.rect.setLeft( textleft );
+    paintCell( painter, textopt, index, checkw==0 );
+    if ( qpm && !qpm->isNull() )
+    {
+	const int xpos = option.rect.left() + checkw + sXPosPadding;
+	const int ypos = option.rect.center().y() - qpm->height()/2;
+	painter->drawPixmap( xpos, ypos, *qpm );
+    }
+
+    if ( checkstyle )
+	checkstyle->drawPrimitive( QStyle::PE_IndicatorItemViewItemCheck,
+				   &indopt, painter, checkwidget );
+}
+
+QSize sizeHint( const QStyleOptionViewItem& option,
+		const QModelIndex& index ) const override
+{
+    QSize sz = ODStyledItemDelegate::sizeHint( option, index );
+    const QVariant qvar = index.data( Qt::DecorationRole );
+    if ( !qvar.isValid() || qvar.toString().isEmpty() )
+	return sz;
+
+    const int iconw = sIconSz;
+    sz.rwidth() += iconw + 2*sXPosPadding;
+    return sz;
 }
 
 }; // class DecorationItemDelegate
@@ -361,7 +525,11 @@ public:
     void	initFrozenView();
     void	updateColumns();
     void	setNrFrozenColumns(int nrcols);
+    void	setColumnDelegate(int col,QAbstractItemDelegate*);
+    void	setDefaultRowHeight(int height);
     void	setSortEnabled(bool yn);
+    void	setSelectionMode(QAbstractItemView::SelectionMode);
+    void	setSelectionBehavior(QAbstractItemView::SelectionBehavior);
     void	setContextMenuEnabled(bool yn);
     void	setAlternatingColors(bool yn);
 		//!<Not setAlternatingRowColors: would shadow QTableView's
@@ -662,6 +830,49 @@ void ODTableView::setNrFrozenColumns( int nrcols )
 	frozenview_->show();
     else
 	frozenview_->hide();
+}
+
+
+void ODTableView::setColumnDelegate( int col, QAbstractItemDelegate* del )
+{
+    setItemDelegateForColumn( col, del );
+    if ( frozenview_ && col>=0 && col<nrfrozencols_ )
+	frozenview_->setItemDelegateForColumn( col, del );
+}
+
+
+static void setViewRowHeight( QTableView* view, int height )
+{
+    if ( !view || !view->verticalHeader() )
+	return;
+
+    QHeaderView* header = view->verticalHeader();
+    header->setDefaultSectionSize( height );
+    header->setSectionResizeMode( QHeaderView::Fixed );
+}
+
+
+void ODTableView::setDefaultRowHeight( int height )
+{
+    setViewRowHeight( this, height );
+    setViewRowHeight( frozenview_, height );
+}
+
+
+void ODTableView::setSelectionMode( QAbstractItemView::SelectionMode mode )
+{
+    QTableView::setSelectionMode( mode );
+    if ( frozenview_ )
+	frozenview_->setSelectionMode( mode );
+}
+
+
+void ODTableView::setSelectionBehavior(
+			    QAbstractItemView::SelectionBehavior bh )
+{
+    QTableView::setSelectionBehavior( bh );
+    if ( frozenview_ )
+	frozenview_->setSelectionBehavior( bh );
 }
 
 
@@ -1021,7 +1232,7 @@ void uiTableView::setModel( TableModel* mdl )
 
     deleteAndNullPtr( horizontalheaderstate_ );
     delete qproxymodel_;
-    qproxymodel_ = new QSortFilterProxyModel();
+    qproxymodel_ = new ODRowFilterProxyModel;
     qproxymodel_->setSourceModel( tablemodel_->getAbstractModel() );
     mAttachCB( tablemodel_->editRequested, uiTableView::editRequestCB );
     odtableview_->setModel( qproxymodel_ );
@@ -1140,12 +1351,19 @@ void uiTableView::setRowHeight( int row, int height )
 
 void uiTableView::setRowHeight( int height )
 {
-    auto* header = odtableview_->verticalHeader();
-    if ( !header )
+    if ( odtableview_ )
+	odtableview_->setDefaultRowHeight( height );
+}
+
+
+void uiTableView::setRowHeightPolicy( RowHeightPol pol )
+{
+    if ( pol!=Compact || !odtableview_ )
 	return;
 
-    header->setDefaultSectionSize( height );
-    header->setSectionResizeMode( QHeaderView::Fixed );
+    const int texth = odtableview_->fontHeight() + 4;
+    const int iconh = 16 + 4;
+    setRowHeight( mMAX(texth,iconh) );
 }
 
 
@@ -1559,6 +1777,26 @@ RowCol uiTableView::mapToSource( const RowCol& rc ) const
 }
 
 
+void uiTableView::setRowTextFilter( const char* txt )
+{
+    mDynamicCastGet(ODRowFilterProxyModel*,proxy,qproxymodel_)
+    if ( !proxy )
+	return;
+
+    proxy->setRowTextFilter( txt );
+}
+
+
+void uiTableView::setShowCheckedOnly( bool yn )
+{
+    mDynamicCastGet(ODRowFilterProxyModel*,proxy,qproxymodel_)
+    if ( !proxy )
+	return;
+
+    proxy->setShowCheckedOnly( yn );
+}
+
+
 void uiTableView::setSelectionBehavior( SelectionBehavior sb )
 {
     odtableview_->setSelectionBehavior(
@@ -1788,7 +2026,7 @@ void uiTableView::setColumnValueType( int col, TableModel::CellType tp,
     ODStyledItemDelegate* coldelegate = getColumnDelegate( col, tp,
 							   format, precision );
     if ( coldelegate )
-	odtableview_->setItemDelegateForColumn( col, coldelegate );
+	odtableview_->setColumnDelegate( col, coldelegate );
 }
 
 
@@ -1835,6 +2073,12 @@ ODStyledItemDelegate*
 void uiTableView::setColumnWidth( int col, int wdth )
 {
     odtableview_->setColumnWidth( col, wdth );
+}
+
+
+int uiTableView::columnWidth( int col ) const
+{
+    return odtableview_ ? odtableview_->columnWidth( col ) : 0;
 }
 
 

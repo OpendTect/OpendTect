@@ -177,6 +177,17 @@ uiIOObjManipGroup::~uiIOObjManipGroup()
 
 
 
+void uiIOObjManipGroup::enableRename( bool yn,
+					     const uiString& tooltip )
+{
+    if ( !renbut )
+	return;
+
+    renbut->setSensitive( yn );
+    renbut->setToolTip( tooltip );
+}
+
+
 void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 {
     if ( tp == FileLocation && locbut )

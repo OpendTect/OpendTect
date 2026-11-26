@@ -8,7 +8,13 @@ ________________________________________________________________________
 -*/
 
 #include "globexpr.h"
-#include <ctype.h>
+
+
+static bool isUtf8ContinuationByte( char ch )
+{
+    return (sCast(unsigned char,ch) & 0xC0) == 0x80;
+}
+
 
 GlobExpr::GlobExpr( const char* s, OD::CaseSensitivity cs )
     : expr_("")
@@ -60,6 +66,16 @@ void GlobExpr::set( const char* str )
 bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 			OD::CaseSensitivity cs )
 {
+    if ( cs == OD::CaseInsensitive )
+    {
+	BufferString uppattern( p );
+	BufferString uptxt( t );
+	uppattern.toUpper();
+	uptxt.toUpper();
+	return matches( uppattern.buf(), uptxt.buf(), errmsg,
+			OD::CaseSensitive );
+    }
+
     errmsg = 0;
     if ( !t || !*t ) return !*p;
 
@@ -71,7 +87,10 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 	switch ( *p )
 	{
-	case '?':	break;
+	case '?':
+	    while ( isUtf8ContinuationByte(t[1]) )
+		t++;
+	    break;
 	case '*':	return starMatches( p, t, errmsg, cs );
 
 	case '[':
@@ -160,16 +179,8 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 	    /* must match this character exactly */
 	    default:
-		if ( cs == OD::CaseSensitive )
-		{
-		    if ( *p != *t )
-			return false;
-		}
-		else
-		{
-		    if ( toupper(*p) != toupper(*t) )
-			return false;
-		}
+		if ( *p != *t )
+		    return false;
 	}
     }
 
@@ -192,6 +203,9 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
 	    /* if end of text then no match */
 	    if ( !*t++ )
 		return false;
+
+	    while ( isUtf8ContinuationByte(*t) )
+		t++;
 	}
 
 	/* move to next char in pattern */
@@ -213,14 +227,16 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
     {
 	needmatched = nextp == '[';
 	if ( !needmatched )
-	    needmatched = cs==OD::CaseInsensitive ? toupper(nextp)==toupper(*t)
-						  : nextp == *t;
+	    needmatched = nextp == *t;
 	if ( needmatched )
 	    matched = matches( p, t, errmsg, cs );
 
 	/* if the end of text is reached then no match */
 	if ( !*t++ )
 	    break;
+
+	while ( isUtf8ContinuationByte(*t) )
+	    t++;
     }
 
     return matched;

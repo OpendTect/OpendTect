@@ -42,7 +42,8 @@ public:
 				Zipper(const BufferStringSet& fullfilenms,
 				       const char* basepath,
 				       const char* zipfnm,
-				       ZipHandler::CompLevel);
+				       ZipHandler::CompLevel,
+				       const BufferStringSet* excludefnms);
 				~Zipper();
 
     uiString			uiMessage() const override;
@@ -66,10 +67,14 @@ private:
 
 
 Zipper::Zipper( const BufferStringSet& srcfnms, const char* basepath,
-		const char* zipfnm, ZipHandler::CompLevel cl )
+		const char* zipfnm, ZipHandler::CompLevel cl,
+		const BufferStringSet* excludefnms )
     : Executor( "Making Zip Archive" )
 {
     ziphd_.setCompLevel( cl );
+    if ( excludefnms )
+	ziphd_.setExcludeFileNames( *excludefnms );
+
     isok_ = ziphd_.initMakeZip( srcfnms, basepath, zipfnm );
 }
 
@@ -433,7 +438,8 @@ const char* ZipUtils::getZLibVersion()
 
 bool ZipUtils::makeZip( const char* srcfnm, const char* basefp,
 			const char* zipfilenm, uiString& errmsg,
-			TaskRunner* taskrunner, ZipHandler::CompLevel cl )
+			TaskRunner* taskrunner, ZipHandler::CompLevel cl,
+			const BufferStringSet* excludefnms )
 {
     BufferString basepath;
     if ( basefp )
@@ -446,15 +452,17 @@ bool ZipUtils::makeZip( const char* srcfnm, const char* basefp,
     }
 
     const BufferStringSet srcfnms( srcfnm );
-    return makeZip( srcfnms, basepath.buf(), zipfilenm, errmsg, taskrunner, cl);
+    return makeZip( srcfnms, basepath.buf(), zipfilenm, errmsg, taskrunner, cl,
+		    excludefnms );
 }
 
 
 bool ZipUtils::makeZip( const BufferStringSet& srcfnms, const char* basepath,
 			const char* zipfilenm, uiString& errmsg,
-			TaskRunner* taskrunner, ZipHandler::CompLevel cl )
+			TaskRunner* taskrunner, ZipHandler::CompLevel cl,
+			const BufferStringSet* excludefnms )
 {
-    Zipper exec( srcfnms, basepath, zipfilenm, cl );
+    Zipper exec( srcfnms, basepath, zipfilenm, cl, excludefnms );
     if ( !TaskRunner::execute(taskrunner,exec) )
     {
 	errmsg = exec.uiMessage();
