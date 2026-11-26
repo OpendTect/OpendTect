@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "globexpr.h"
-#include <ctype.h>
 
 GlobExpr::GlobExpr( const char* s, OD::CaseSensitivity cs )
     : expr_("")
@@ -60,6 +59,16 @@ void GlobExpr::set( const char* str )
 bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 			OD::CaseSensitivity cs )
 {
+    if ( cs == OD::CaseInsensitive )
+    {
+	BufferString uppattern( p );
+	BufferString uptxt( t );
+	uppattern.toUpper();
+	uptxt.toUpper();
+	return matches( uppattern.buf(), uptxt.buf(), errmsg,
+			OD::CaseSensitive );
+    }
+
     errmsg = 0;
     if ( !t || !*t ) return !*p;
 
@@ -160,16 +169,8 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
 
 	    /* must match this character exactly */
 	    default:
-		if ( cs == OD::CaseSensitive )
-		{
-		    if ( *p != *t )
-			return false;
-		}
-		else
-		{
-		    if ( toupper(*p) != toupper(*t) )
-			return false;
-		}
+		if ( *p != *t )
+		    return false;
 	}
     }
 
@@ -213,8 +214,7 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
     {
 	needmatched = nextp == '[';
 	if ( !needmatched )
-	    needmatched = cs==OD::CaseInsensitive ? toupper(nextp)==toupper(*t)
-						  : nextp == *t;
+	    needmatched = nextp == *t;
 	if ( needmatched )
 	    matched = matches( p, t, errmsg, cs );
 
