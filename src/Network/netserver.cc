@@ -658,9 +658,9 @@ void Network::Server::close()
 const char* Network::Server::errorMsg() const
 {
     if ( isLocal() )
-	errmsg_ = qlocalserver_->errorString().toLatin1().constData();
+	errmsg_ = qlocalserver_->errorString();
     else
-	errmsg_ = qtcpserver_->errorString().toLatin1().constData();
+	errmsg_ = qtcpserver_->errorString();
     return errmsg_.buf();
 }
 
