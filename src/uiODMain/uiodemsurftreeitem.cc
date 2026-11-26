@@ -565,10 +565,13 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
     loadsurfacedatamnuitem_.text = itmtxt;
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 		  !islocked && nrsurfdata>0, false );
+
     if ( uivisemobj_ )
     {
+	const bool isz = as &&
+			as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt();
 	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
-		  as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
+		      isz );
     }
     else
     {
