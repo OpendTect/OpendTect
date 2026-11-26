@@ -107,6 +107,7 @@ set( OD_MODULE_SOURCES
 	uistatsdisplay.cc
 	uistatusbutton.cc
 	uistepoutsel.cc
+	uistringtableviewgrp.cc
 	uistratlvlsel.cc
 	uisurveyzip.cc
 	uitaskrunner.cc
