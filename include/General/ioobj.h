@@ -108,6 +108,7 @@ public:
 					 bool resolve=true) const;
 				/*!< Owner of the dataset. "Created.By" when
 				     present, otherwise the main file owner. */
+    bool			belongsToCurrentUser() const;
     virtual void		implFileNames(BufferStringSet&) const;
 
     virtual bool		implIsLink() const;
