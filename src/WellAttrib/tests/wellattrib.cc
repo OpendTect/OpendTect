@@ -79,7 +79,7 @@ void cleanup()
     if ( welllog5fp.exists() )
 	File::remove( welllog5fp.fullPath() );
 
-    if ( !QDir::setCurrent(QString::fromLocal8Bit(surveydir_.buf())) )
+    if ( !QDir::setCurrent(QString::fromUtf8(surveydir_.buf())) )
 	return;
 
     const FilePath seisomf( surveydir_,"Seismics", ".omf*" );

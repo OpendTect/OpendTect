@@ -89,7 +89,7 @@ mDefQueryNumbFn(bool,isTrue,toBool)
 
 BufferString SqlDB::Query::errMsg() const
 {
-    return BufferString( qsqlquery_->lastError().text().toLatin1().data() );
+    return BufferString( qsqlquery_->lastError().text() );
 }
 
 
