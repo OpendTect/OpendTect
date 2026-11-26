@@ -27,6 +27,11 @@ ________________________________________________________________________
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
+namespace SurveyLockImpl
+{
+    void	getLockFileNames(BufferStringSet&);
+} // namespace SurveyLockImpl
+
 SurveyCreator::SurveyCreator( const char* survnm, const char* dr,
 			      bool ismanaged )
     : surveynm_(survnm)
@@ -198,6 +203,12 @@ uiRetVal SurveyCreator::deactivate()
 }
 
 
+void SurveyCreator::getLockFileNames( BufferStringSet& fnms )
+{
+    SurveyLockImpl::getLockFileNames( fnms );
+}
+
+
 uiRetVal SurveyCreator::save( TaskRunner* trun )
 {
     if ( !surveyloc_ )
@@ -234,8 +245,11 @@ uiRetVal SurveyCreator::save( TaskRunner* trun )
 
     uiString errmsg;
     const BufferString surveydirnm( surveyloc_->fullPath() );
+    BufferStringSet excludefnms;
+    getLockFileNames( excludefnms );
     if ( !ZipUtils::makeZip(surveydirnm.buf(),nullptr,
-			    targetzipfnm.buf(),errmsg,trun) )
+			    targetzipfnm.buf(),errmsg,trun,ZipHandler::Normal,
+			    &excludefnms) )
     {
 	lasterrs_.set( errmsg );
 	if ( File::exists(backupfile.buf()) &&

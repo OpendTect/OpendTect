@@ -182,6 +182,7 @@ private:
 					{ return cumulativefilecounts_.last(); }
     int				getCumulativeFileCount(int) const;
     void			setCompLevel(CompLevel);
+    void			setExcludeFileNames(const BufferStringSet&);
 
     od_int64			getTotalSize()const  { return totalsize_; }
     od_int64			getNrDoneSize()const  { return nrdonesize_; }
@@ -197,6 +198,7 @@ private:
 
     mutable uiString		errormsg_;
     BufferStringSet		allfilenames_;
+    BufferStringSet		excludefnms_;
 
     CompLevel			complevel_		= Normal;
 

@@ -61,9 +61,15 @@ private:
 };
 
 
+static const char* sKeyMutexFileName()
+{
+    return ".od_survey.lock.mutex";
+}
+
+
 static BufferString mutexFileName( const char* surveydir )
 {
-    return FilePath( surveydir, ".od_survey.lock.mutex" ).fullPath();
+    return FilePath( surveydir, sKeyMutexFileName() ).fullPath();
 }
 
 
@@ -228,6 +234,7 @@ bool		registerInstance(const char* surveydir);
 bool		unregisterInstance(const char* surveydir=nullptr);
 bool		hasOtherLiveHolders(const char* surveydir);
 void		getOtherLiveHolders(const char* surveydir,BufferStringSet&);
+void		getLockFileNames(BufferStringSet&);
 
 static const char* sKeyFileName()
 {
@@ -369,6 +376,12 @@ void getOtherLiveHolders( const char* surveydir, BufferStringSet& infos )
 	if ( !rec->belongsToCurrentProcess() )
 	    infos.add( rec->displayText() );
     }
+}
+
+
+void getLockFileNames( BufferStringSet& fnms )
+{
+    fnms.add( sKeyFileName() ).add( sKeyMutexFileName() );
 }
 
 } // namespace SurveyLockImpl
