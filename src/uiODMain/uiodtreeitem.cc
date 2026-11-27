@@ -451,11 +451,22 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( mnuid==propitem_.id )
     {
-	ObjectSet<ui3DViewer> viewers;
-	ODMainWin()->sceneMgr().get3DViewers( viewers );
-	uiScenePropertyDlg dlg( getUiParent(), viewers,
-				viewers.indexOf(viewer()) );
-	dlg.go();
+	visSurvey::Scene* scene = visserv->getScene( displayid_ );
+	if ( scene && scene->isVSGScene() )
+	{
+	    void* res = nullptr;
+	    getPropertyPtr( uiODTreeTop::viewerptr(), res );
+	    visserv->showVSGSceneProperties( getUiParent(),
+					     sCast(ui3DViewerBase*,res) );
+	}
+	else
+	{
+	    ObjectSet<ui3DViewer> viewers;
+	    ODMainWin()->sceneMgr().get3DViewers( viewers );
+	    uiScenePropertyDlg dlg( getUiParent(), viewers,
+				    viewers.indexOf(viewer()) );
+	    dlg.go();
+	}
     }
     else if ( mnuid==imageitem_.id )
 	visserv->setTopBotImg( displayid_ );

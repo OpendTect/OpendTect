@@ -112,6 +112,8 @@ public:
 					const uiString& nm=uiString::empty());
 			/*!<Without a scene: give it one with setScene
 			    before it is first shown */
+    void		showVSGSceneProperties(uiParent*,
+					       ui3DViewerBase*) const;
 
     void		removeScene(const SceneID&);
     int			nrScenes() const;

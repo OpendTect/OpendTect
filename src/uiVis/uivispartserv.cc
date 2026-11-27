@@ -256,6 +256,7 @@ Pos::GeomID uiVisPartServer::getGeomID( const VisID& id ) const
 
 typedef visSurvey::Scene* (*VSGSceneCreator)();
 typedef ui3DViewerBase* (*VSGViewerCreator)( uiParent*,const char* );
+typedef void (*VSGScenePropertyDlg)( uiParent*,ui3DViewerBase* );
 
 void* uiVisPartServer::getVSGFunction( const char* fnnm ) const
 {
@@ -321,6 +322,18 @@ ui3DViewerBase* uiVisPartServer::createVSGViewer( uiParent* parent,
 
     VSGViewerCreator creator = rCast( VSGViewerCreator, funcptr );
     return creator( parent, title.buf() );
+}
+
+
+void uiVisPartServer::showVSGSceneProperties( uiParent* parent,
+					      ui3DViewerBase* viewer ) const
+{
+    void* funcptr = getVSGFunction( "showVSGScenePropertyDlg" );
+    if ( !funcptr )
+	return;
+
+    VSGScenePropertyDlg showdlg = rCast( VSGScenePropertyDlg, funcptr );
+    showdlg( parent, viewer );
 }
 
 

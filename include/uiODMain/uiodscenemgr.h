@@ -55,7 +55,6 @@ public:
 					 ZAxisTransform* =nullptr,
 					 const uiString& nm=uiString::empty(),
 					 bool isvsg=false);
-    SceneID			addScene(bool maximized,bool isvsg);
 
     SceneID			addDefaultScene();
 

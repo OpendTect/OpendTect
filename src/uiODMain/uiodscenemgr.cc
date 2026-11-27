@@ -203,18 +203,20 @@ uiODSceneMgr::SceneBundle& uiODSceneMgr::mkNewScene( bool isvsg )
     if ( isvsg )
     {
 	scn = new uiODSceneMgr::VSGSceneBundle( mdiarea_ );
-	scn->vwr3d_ = visServ().createVSGViewer( scn->mdiwin_ );
+	if ( scn->mdiwin_ )
+	    scn->vwr3d_ = visServ().createVSGViewer( scn->mdiwin_ );
     }
     else
 	scn = new uiODSceneMgr::OSGSceneBundle( mdiarea_ );
 
-    scenes_ += scn;
     if ( !scn->mdiwin_ )
     {
+	// Not added to scenes_: no viewer, so the caller removes it
 	pErrMsg( "Failed to create scene window" );
 	return *scn;
     }
 
+    scenes_ += scn;
     mAttachCB( scn->mdiwin_->closed(), uiODSceneMgr::removeSceneCB );
     mAttachCB( scn->mdiwin_->windowShown(), uiODSceneMgr::mdiAreaChanged );
     mAttachCB( scn->mdiwin_->windowHidden(), uiODSceneMgr::mdiAreaChanged );
@@ -329,10 +331,6 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     return sceneid;
 }
 
-SceneID uiODSceneMgr::addScene( bool maximized, bool isvsg )
-{
-    return addScene( maximized, nullptr, uiString::empty(), isvsg );
-}
 
 uiODSceneMgr::SceneBundle* uiODSceneMgr::getScene( const SceneID& sceneid )
 {
@@ -368,10 +366,7 @@ SceneID uiODSceneMgr::addDefaultScene()
     if ( !canAddSceneAtStartup() )
 	return SceneID::udf();
 
-    if ( useVSGDefaultScene() )
-	return addScene( true, true );
-
-    return addScene( true );
+    return addScene( true, nullptr, uiString::empty(), useVSGDefaultScene() );
 }
 
 
@@ -436,7 +431,9 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::SceneBundle& scene )
 	sceneClosed.trigger( scene.itemmanager_->sceneID() );
     }
 
-    scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
+    if ( scene.mdiwin_ )
+	scene.mdiwin_->closed().remove( mWSMCB(removeSceneCB) );
+
     scenes_ -= &scene;
     delete &scene;
 }
@@ -566,24 +563,43 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
 void uiODSceneMgr::setSceneProperties()
 {
-    ObjectSet<ui3DViewer> vwrs;
-    get3DViewers( vwrs );
-    if ( vwrs.isEmpty() )
+    uiStringSet scenenms;
+    TypeSet<SceneBundle*> bundles;
+    for ( auto* bundle : scenes_ )
+    {
+	bundles += bundle;
+	scenenms.add( getSceneName(bundle->sceneID()) );
+    }
+
+    if ( bundles.isEmpty() )
     {
 	uiMSG().error( tr("No scenes available") );
 	return;
     }
 
-    int curvwridx = 0;
-    if ( vwrs.size() > 1 )
+    int selidx = 0;
+    if ( bundles.size() > 1 )
     {
-	const SceneID sceneid = askSelectScene();
-	const ui3DViewer* vwr = get3DViewer( sceneid );
-	if ( !vwr )
+	StringListInpSpec* inpspec = new StringListInpSpec( scenenms );
+	uiGenInputDlg dlg( &appl_, tr("Choose scene"), mNoDlgTitle, inpspec );
+	selidx = dlg.go() ? dlg.getIntValue() : -1;
+	if ( !bundles.validIdx(selidx) )
 	    return;
-
-	curvwridx = vwrs.indexOf( vwr );
     }
+
+    SceneBundle* bundle = bundles[selidx];
+    if ( bundle->isVSG() )
+    {
+	visServ().showVSGSceneProperties( &appl_, bundle->vwr3d_ );
+	return;
+    }
+
+    ObjectSet<ui3DViewer> vwrs;
+    get3DViewers( vwrs );
+    const int curvwridx =
+	    vwrs.indexOf( dCast(ui3DViewer*,bundle->vwr3d_) );
+    if ( curvwridx < 0 )
+	return;
 
     uiScenePropertyDlg dlg( &appl_, vwrs, curvwridx );
     dlg.go();
