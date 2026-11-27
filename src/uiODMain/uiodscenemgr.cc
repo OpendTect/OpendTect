@@ -567,9 +567,6 @@ void uiODSceneMgr::setSceneProperties()
     TypeSet<SceneBundle*> bundles;
     for ( auto* bundle : scenes_ )
     {
-	if ( !bundle->vwr3d_ )
-	    continue;
-
 	bundles += bundle;
 	scenenms.add( getSceneName(bundle->sceneID()) );
     }

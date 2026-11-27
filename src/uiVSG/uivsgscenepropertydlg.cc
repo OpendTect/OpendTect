@@ -273,7 +273,7 @@ mExternC(uiVSG) void showVSGScenePropertyDlg( uiParent*, ui3DViewerBase* );
 mExternC(uiVSG) void showVSGScenePropertyDlg( uiParent* parent,
 					      ui3DViewerBase* viewer )
 {
-    mDynamicCastGet(uiVSGViewer*,vsgviewer,viewer)
+    uiVSGViewer* vsgviewer = dCast(uiVSGViewer*,viewer);
     if ( !vsgviewer )
 	return;
 
