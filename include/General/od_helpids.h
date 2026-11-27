@@ -95,7 +95,6 @@ ________________________________________________________________________
 #define		mODEditAttribColorDlgHelpID			0x05001005
 #define		mColTabExportHelpID				0x05001006
 // Visualization Sessions 03
-#define		mODMainAutoSessionDlgHelpID			0x05003001
 #define		mSessionManHelpID				0x05003002
 #define		mSlideLayoutDlgHelpID				0x05003003
 #define		mPresentationMakerDlgHelpID			0x05003004
