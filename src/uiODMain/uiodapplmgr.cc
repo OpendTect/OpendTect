@@ -440,7 +440,6 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	    .arg( ztrans->factoryDisplayName() );
 
     sceneMgr().tile();
-
     const SceneID sceneid = sceneMgr().addScene( true, ztrans.ptr(),
 						 snm );
     if ( !sceneid.isValid() )
