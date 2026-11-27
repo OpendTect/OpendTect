@@ -326,20 +326,83 @@ bool EntryDataSet::isBad( const MultiID& mid ) const
 }
 
 
+mDefineEnumUtils(EntryDataSet,Column,"Object selector column")
+{
+    "Name",
+    "DateModified",
+    "Interpreter",
+    nullptr
+};
+
+template <>
+void EnumDefImpl<EntryDataSet::Column>::init()
+{
+    uistrings_ += uiStrings::sName();
+    uistrings_ += tr( "Date Modified" );
+    uistrings_ += tr( "Interpreter" );
+}
+
+
+static TableModel::CellType ioObjSelColumnType( EntryDataSet::Column col )
+{
+    return col == EntryDataSet::Column::DateModified ? TableModel::DateTime
+					     : TableModel::Text;
+}
+
+
+static const char* ioObjSelColumnValue( const EntryData& ed,
+					EntryDataSet::Column col )
+{
+    switch ( col )
+    {
+	case EntryDataSet::Column::Name:		return ed.getDispNm();
+	case EntryDataSet::Column::DateModified:	return ed.getModAt();
+	case EntryDataSet::Column::Interpreter:		return ed.getUserNm();
+    }
+
+    return nullptr;
+}
+
+
+using IOObjSelColumnsFn = void(*)(BufferStringSet&);
+static IOObjSelColumnsFn ioobjselcolumnsfn_ = nullptr;
+
+extern "C" { mGlobal(uiIo) void SetIOObjSelColumnsFn(IOObjSelColumnsFn); }
+mExternC(uiIo) void SetIOObjSelColumnsFn( IOObjSelColumnsFn fn )
+{
+    ioobjselcolumnsfn_ = fn;
+}
+
+
 void EntryDataSet::fillStringTable( StringTableContents& contents ) const
 {
-    contents.columns_.add( "Name" );
-    contents.columns_.add( "Date Modified" );
-    contents.columns_.add( "Interpreter" );
-    contents.types_ += TableModel::Text;
-    contents.types_ += TableModel::DateTime;
-    contents.types_ += TableModel::Text;
+    BufferStringSet keys;
+    if ( ioobjselcolumnsfn_ )
+	(*ioobjselcolumnsfn_)( keys );
+
+    TypeSet<Column> cols;
+    for ( int idx=0; idx<keys.size(); idx++ )
+    {
+	Column col;
+	if ( parseEnum(keys.get(idx).buf(),col) )
+	    cols += col;
+    }
+
+    if ( cols.isEmpty() )
+	cols += Column::Name;
+
+    for ( const auto& col : cols )
+    {
+	contents.columns_.add( ::toString(ColumnDef().toUiString(col)) );
+	contents.types_ += ioObjSelColumnType( col );
+    }
+
     for ( const EntryData* ed : *this )
     {
 	auto* cells = new BufferStringSet;
-	cells->add( ed->getDispNm() );
-	cells->add( ed->getModAt() );
-	cells->add( ed->getUserNm() );
+	for ( const auto& col : cols )
+	    cells->add( ioObjSelColumnValue(*ed,col) );
+
 	contents.rows_.add( cells );
 
 	BufferString icnnm;

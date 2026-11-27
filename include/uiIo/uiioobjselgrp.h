@@ -108,6 +108,10 @@ public:
     void			setIsBad(const MultiID&,bool yn);
     bool			isBad(const MultiID&) const;
     void			setNames(const BufferStringSet&);
+
+    enum class Column		{ Name, DateModified, Interpreter };
+    mDeclareEnumUtils(Column);
+
     void			fillStringTable(StringTableContents&) const;
 
     Notifier<EntryDataSet>	stringTableChanged;
