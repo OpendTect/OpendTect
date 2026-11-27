@@ -124,13 +124,14 @@ list( APPEND OD_TEST_PROGS
 	raytracerrunner.cc
 	reflectivitysampler.cc
 	stringtablemodel.cc
-	#surveylock.cc
 	tempsurvey.cc
 	unitofmeasure.cc
 	veldesc.cc
 )
+
 set( OD_NIGHTLY_TEST_PROGS
 	surveychanger.cc
+	surveylock.cc
 	zip.cc
 )
 

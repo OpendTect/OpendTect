@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odlockfile.h"
 #include "separstr.h"
-#include "sets.h"
 #include "string2.h"
 
 
@@ -75,8 +74,8 @@ static BufferString mutexFileName( const char* surveydir )
 
 static BufferString& registeredDirStr()
 {
-    static BufferString* dir = new BufferString;
-    return *dir;
+    static BufferString dir;
+    return dir;
 }
 
 

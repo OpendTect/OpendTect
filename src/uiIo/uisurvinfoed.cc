@@ -1306,6 +1306,17 @@ void uiSurveyInfoEditor::updZUnit( CallBacker* )
 }
 
 
+void uiSurveyInfoEditor::setReadOnly()
+{
+    setCtrlStyle( CloseOnly );
+    topgrp_->setSensitive( false );
+    rangegrp_->setSensitive( false );
+    crdgrp_->setSensitive( false );
+    trgrp_->setSensitive( false );
+    crsgrp_->setSensitive( false );
+}
+
+
 void uiSurveyInfoEditor::setNameandPathSensitive(bool ynName, bool ynPath)
 {
     survnmfld_->setSensitive( ynName );

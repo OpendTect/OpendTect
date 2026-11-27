@@ -10,12 +10,10 @@ ________________________________________________________________________
 #include "surveyfile.h"
 
 #include "bufstringset.h"
-#include "commandlineparser.h"
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "moddepmgr.h"
-#include "oddirs.h"
 #include "stringview.h"
 #include "survinfo.h"
 #include "testprog.h"
@@ -65,10 +63,10 @@ static void cleanup()
 }
 
 
-static void signalHandler( int )
+static void signalHandler( int signum )
 {
-    cleanup();
-    std::exit( 1 );
+    errStream() << "Interrupt signal (" << signum << ") received." << od_endl;
+    exit( signum );
 }
 
 
@@ -139,21 +137,6 @@ static bool isUsableSurveyDir( const char* dir )
 {
     return File::isDirectory(dir) &&
 	   SurveyInfo::isValidSurveyDir(dir).isOK();
-}
-
-
-static BufferString resolveDataRoot()
-{
-    BufferString basedir;
-    clParser().setKeyHasValue( "datadir" );
-    clParser().setKeyHasValue( CommandLineParser::sDataRootArg() );
-    if ( !clParser().getVal("datadir",basedir) )
-	clParser().getVal( CommandLineParser::sDataRootArg(), basedir );
-
-    if ( basedir.isEmpty() )
-	basedir = GetBaseDataDir();
-
-    return basedir;
 }
 
 
@@ -305,7 +288,6 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProgDR();
 
-    OD::ModDeps().ensureLoaded( "General" );
     OD::ModDeps().ensureLoaded( "Geometry" );
 
     signal( SIGINT, signalHandler );
@@ -315,6 +297,9 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testOnTempSurvey() )
 	return 1;
 
-    const BufferString basedir = resolveDataRoot();
+    clParser().setKeyHasValue( "datadir" );
+    FilePath basedatadirfp;
+    clParser().getVal( "datadir", basedatadirfp );
+    const BufferString basedir = basedatadirfp.fullPath();
     return testOnRealSurveys( basedir.buf() ) ? 0 : 1;
 }

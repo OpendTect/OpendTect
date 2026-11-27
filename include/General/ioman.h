@@ -187,6 +187,7 @@ private:
     int			    curlvl_;
     uiString		    msg_;
     bool		    survchgblocked_ = false;
+    bool		    surveylockregistered_ = false;
     mutable Threads::Lock   lock_;
 
 			IOMan(const FilePath& rootdir);
