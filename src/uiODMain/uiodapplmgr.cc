@@ -71,7 +71,6 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "od_helpids.h"
 #include "oddirs.h"
-#include "odsession.h"
 #include "pickset.h"
 #include "posvecdataset.h"
 #include "randomlinegeom.h"
@@ -286,10 +285,7 @@ void uiODApplMgr::survChanged()
 {
     dispatcher_.survChg(false);
     attrvishandler_.survChg(false);
-    bool douse = false;
-    MultiID id;
-    ODSession::getStartupData( douse, id );
-    if ( !douse || id.isUdf() )
+    if ( !appl_.willOfferStartupSession() )
 	sceneMgr().addDefaultScene();
 
     attrserv_ = new uiAttribPartServer( applservice_ );

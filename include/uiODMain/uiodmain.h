@@ -14,9 +14,11 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
+class IOPar;
 class ODSession;
 class Timer;
 class uiMain;
+class uiODSessionController;
 class uiDockWin;
 class uiODApplMgr;
 class uiODMain;
@@ -31,6 +33,34 @@ class uiVisColTabEd;
 mGlobal(uiODMain) uiODMain* ODMainWin();
 //!< Top-level access for plugins
 class uiODRequestServerMgr;
+
+
+/*!\brief Optional session policy installed by a plugin.
+
+  uiODMain keeps manual save and restore. A plugin that installs a controller
+  owns auto-save, auto-load, the close-without-session prompt, and restart
+  save/restore. Without a controller those paths are inactive.
+*/
+
+mExpClass(uiODMain) uiODSessionController
+{ mODTextTranslationClass(uiODSessionController);
+public:
+    virtual		~uiODSessionController();
+
+    /*!\return true when the prompt was handled. accept is then whether
+	       closing may continue. */
+    virtual bool	confirmClose(bool restarting,bool& accept);
+    virtual void	adjustRestart(bool withinteraction,
+				      bool& keepsession,bool& keeppreload);
+    virtual void	writeRestartState(bool keepsession,bool keeppreload,
+					  const IOPar& seispar,
+					  const IOPar& horpar);
+    virtual bool	restoreRestart();
+    virtual bool	willOfferStartupSession() const;
+    /*!\return true when the user declines the startup Session. */
+    virtual bool	offerStartupSession();
+    virtual void	afterStartupSession(bool autoloaddeclined);
+};
 
 /*!
 \brief OpendTect application top level object
@@ -76,10 +106,17 @@ public:
     bool		hasSessionChanged(); /*!< Compares current session with
 						  last saved. */
     void		saveSession();	//!< pops up the save session dialog
+    bool		saveSessionDlg();
     void		restoreSession(); //!< pops up the restore session dlg
-    void		autoSession(); //!< pops up the auto session dlg
-    void		autoSaveSession(); //!< pops up the auto-save dlg
+    bool		restoreSession(const MultiID&);
     bool		isRestoringSession()	{ return restoringsess_; }
+    bool		willOfferStartupSession() const;
+    const MultiID&	currentSessionID() const	{ return cursessid_; }
+    void		setCurrentSessionID(const MultiID&);
+    bool		canStoreSession();
+    bool		captureSession(ODSession&);
+    void		noteSessionStored(const ODSession&);
+    void		setSessionController(uiODSessionController*);
     uiStringSet&	restoreMsgs()		{ return restoremsgs_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
@@ -116,8 +153,6 @@ protected:
     bool		prepareRestart(bool interact,bool doconfirm);
     void		afterStartupCB(CallBacker*);
     void		afterSurveyChgCB(CallBacker*);
-    void		handleStartupSession();
-    bool		restoreRestartPars();
     void		restoreSession(const IOObj*);
 
 private:
@@ -125,29 +160,20 @@ private:
     bool		buildUI();
 
     CtxtIOObj*		getUserSessionIOData(bool);
-    bool		saveSessionDlg();
-    bool		askCloseWithoutSession();
     bool		updateSession();
-    void		resolveAutoSaveOverwrite();
-    void		warnAutoSaveNoSession();
     void		doRestoreSession();
 
     Timer&		sesstimer_;
     Timer&		memtimer_;
     Timer&		newsurvinittimer_;
     Timer&		autoloadsessiontimer_;
-    Timer&		autosavesessiontimer_;
-    Timer&		autosavestatustimer_;
 
+    uiODSessionController* sessionctl_		= nullptr;
     bool		neednewsurvinit_	= false;
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);
     void		autoloadSessionCB(CallBacker*);
-    void		autoSaveSessionCB(CallBacker*);
-    void		autoSaveStatusTimerCB(CallBacker*);
-    void		updateAutoSaveTimer();
-    void		updateAutoSaveTimer(bool showstatus);
 
     void		updateCaptionCB(CallBacker*);
 

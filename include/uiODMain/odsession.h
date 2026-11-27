@@ -37,19 +37,7 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar& par) const;
 
-    static void		getStartupData(bool& douse,MultiID&);
-    static void		setStartupData(bool,const MultiID&);
-
-    static void		getAutoSaveData(bool& douse,int& intervalmin);
-    static void		setAutoSaveData(bool douse,int intervalmin);
-    static bool		getAutoSaveOverwriteSelected();
-    static void		setAutoSaveOverwriteSelected(bool);
     static const char*	sAutoSaveSessionName();
-
-    // All intervals are in minutes
-    static int		cAutoSaveMinInterval()		{ return 5; }
-    static int		cAutoSaveMaxInterval()		{ return 60; }
-    static int		cAutoSaveDefInterval()		{ return 15; }
 
 protected:
 
@@ -81,11 +69,6 @@ protected:
     static const char*	vwr2dprefix();
     static const char*	pluginprefix();
 
-    static const char*	sKeyUseStartup();
-    static const char*	sKeyStartupID();
-    static const char*	sKeyUseAutoSave();
-    static const char*	sKeyAutoSaveInterval();
-    static const char*	sKeyAutoSaveOverwriteSelected();
 };
 
 

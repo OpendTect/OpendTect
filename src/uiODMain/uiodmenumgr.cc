@@ -35,10 +35,8 @@ ________________________________________________________________________
 #include "uivolprocchain.h"
 #include "uiwellpartserv.h"
 
-#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioman.h"
 #include "measuretoolman.h"
 #include "oddirs.h"
@@ -230,15 +228,13 @@ void uiODMenuMgr::fillSurveyMenu()
     insertAction( surveymnu_, m3Dots(tr("Edit Survey Parameters")),
 		  mCurrSurvUpdItm, "editcurrsurv" );
 
-    auto* sessionitm = new uiMenu( &appl_, uiStrings::sSession() );
-    insertAction( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm,
+    sessionmnu_ = new uiMenu( &appl_, uiStrings::sSession() );
+    insertAction( sessionmnu_, m3Dots(uiStrings::sSave()), mSessSaveMnuItm,
 		  "save" );
-    insertAction( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm, "open" );
-    sessionitm->insertSeparator();
-    insertAction( sessionitm, m3Dots(tr("Auto-save")), mSessAutoSaveMnuItm );
-    insertAction( sessionitm, m3Dots(tr("Auto-load")), mSessAutoMnuItm );
+    insertAction( sessionmnu_, m3Dots(tr("Restore")), mSessRestMnuItm, "open" );
+    sessionmnu_->insertSeparator();
 
-    surveymnu_->addMenu( sessionitm );
+    surveymnu_->addMenu( sessionmnu_ );
     surveymnu_->insertSeparator();
 
     impmnu_ = new uiMenu( &appl_, uiStrings::sImport(), "import" );
@@ -1561,8 +1557,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 					break;
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
-    case mSessAutoSaveMnuItm:		appl_.autoSaveSession(); break;
-    case mSessAutoMnuItm:		appl_.autoSession(); break;
     case mImpAttrMnuItm:		mDoOp(Imp,Attr,0); break;
     case mImpAttrOthSurvMnuItm:		mDoOp(Imp,Attr,1); break;
     case mImpColTabMnuItm:		mDoOp(Imp,ColTab,0); break;

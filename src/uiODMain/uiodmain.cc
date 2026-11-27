@@ -13,15 +13,11 @@ ________________________________________________________________________
 
 #include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
-#include "uibutton.h"
 #include "uicolortable.h"
 #include "uidockwin.h"
 #include "uiempartserv.h"
-#include "uigeninput.h"
 #include "uiglinfo.h"
-#include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
-#include "uilabel.h"
 #include "uimain.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
@@ -32,7 +28,6 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
-#include "uiofferinfo.h"
 #include "uipixmap.h"
 #include "uiseispartserv.h"
 #include "uiserviceclientmgr.h"
@@ -47,8 +42,6 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "envvars.h"
-#include "file.h"
-#include "filepath.h"
 #include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -56,7 +49,6 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "nrbytes2string.h"
 #include "od_helpids.h"
-#include "od_ostream.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
@@ -339,6 +331,48 @@ bool uiODMain::hasTransientStatusMsg() const
     return Time::getMilliSeconds() < sTransientStatusUntil;
 }
 
+
+uiODSessionController::~uiODSessionController()
+{}
+
+
+bool uiODSessionController::confirmClose( bool, bool& accept )
+{
+    accept = false;
+    return false;
+}
+
+
+void uiODSessionController::adjustRestart( bool, bool&, bool& )
+{}
+
+
+void uiODSessionController::writeRestartState( bool, bool,
+						const IOPar&, const IOPar& )
+{}
+
+
+bool uiODSessionController::restoreRestart()
+{
+    return false;
+}
+
+
+bool uiODSessionController::willOfferStartupSession() const
+{
+    return false;
+}
+
+
+bool uiODSessionController::offerStartupSession()
+{
+    return false;
+}
+
+
+void uiODSessionController::afterStartupSession( bool )
+{}
+
 uiODMain::uiODMain( uiMain& a )
     : uiMainWin(nullptr,toUiString("OpendTect Main Window"),5,true)
     , sessionSave(this)
@@ -353,8 +387,6 @@ uiODMain::uiODMain( uiMain& a )
     , memtimer_(*new Timer("Memory display timer"))
     , newsurvinittimer_(*new Timer("New survey init timer"))
     , autoloadsessiontimer_(*new Timer("Auto-load Session"))
-    , autosavesessiontimer_(*new Timer("Auto-save Session"))
-    , autosavestatustimer_(*new Timer("Auto-save Session status"))
 {
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
@@ -365,7 +397,6 @@ uiODMain::uiODMain( uiMain& a )
 
     mAttachCB( IOM().afterSurveyChange, uiODMain::afterSurveyChgCB );
     mAttachCB( sesstimer_.tick, uiODMain::sessTimerCB );
-    mAttachCB( autosavestatustimer_.tick, uiODMain::autoSaveStatusTimerCB );
 
     uiString statustt = tr( "System memory: Free/Available" );
     statustt.append( tr("| CPU: Used/Available") );
@@ -397,8 +428,6 @@ uiODMain::~uiODMain()
     delete &memtimer_;
     delete &newsurvinittimer_;
     delete &autoloadsessiontimer_;
-    delete &autosavesessiontimer_;
-    delete &autosavestatustimer_;
 
     delete menumgr_;
     delete scenemgr_;
@@ -537,6 +566,63 @@ void uiODMain::saveSession()
 }
 
 
+void uiODMain::setSessionController( uiODSessionController* ctl )
+{
+    sessionctl_ = ctl;
+}
+
+
+bool uiODMain::captureSession( ODSession& sess )
+{
+    ODSession* prev = cursession_;
+    cursession_ = &sess;
+    const bool ok = updateSession();
+    cursession_ = prev;
+    return ok;
+}
+
+
+void uiODMain::noteSessionStored( const ODSession& sess )
+{
+    lastsession_ = sess;
+    cursession_ = &lastsession_;
+}
+
+
+void uiODMain::setCurrentSessionID( const MultiID& mid )
+{
+    cursessid_ = mid;
+}
+
+
+bool uiODMain::restoreSession( const MultiID& mid )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return false;
+
+    cursessid_ = mid;
+    restoreSession( ioobj.ptr() );
+    return true;
+}
+
+
+bool uiODMain::willOfferStartupSession() const
+{
+    return sessionctl_ && sessionctl_->willOfferStartupSession();
+}
+
+
+bool uiODMain::canStoreSession()
+{
+    if ( !cursessid_.isUdf() )
+	return true;
+
+    uiVisPartServer* visserv = applMgr().visServer();
+    return visserv && hasSceneItems( visserv );
+}
+
+
 void uiODMain::restoreSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( true );
@@ -548,279 +634,6 @@ void uiODMain::restoreSession()
 }
 
 
-class uiODMainAutoSessionDlg : public uiDialog
-{ mODTextTranslationClass(uiODMainAutoSessionDlg);
-public:
-
-uiODMainAutoSessionDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Auto-load Session"),
-		       mODHelpKey(mODMainAutoSessionDlgHelpID)))
-{
-    bool douse = false;
-    MultiID id;
-    ODSession::getStartupData( douse, id );
-
-    usefld_ = new uiGenInput( this, tr("Auto-load session mode"),
-	  BoolInpSpec(douse,uiStrings::sEnabled(),uiStrings::sDisabled() ));
-    mAttachCB( usefld_->valueChanged, uiODMainAutoSessionDlg::useChg );
-    doselfld_ = new uiGenInput( this, tr("Use one for this survey"),
-				BoolInpSpec(!id.isUdf()) );
-    mAttachCB( doselfld_->valueChanged, uiODMainAutoSessionDlg::useChg );
-    doselfld_->attach( alignedBelow, usefld_ );
-
-    IOObjContext ctxt = mIOObjContext( ODSession );
-    ctxt.forread_ = true;
-    sessionfld_ = new uiIOObjSel( this, ctxt, uiStrings::sSession() );
-    sessionfld_->setInput( id );
-    sessionfld_->attach( alignedBelow, doselfld_ );
-
-    loadnowfld_ = new uiGenInput( this, tr("Load selected session now"),
-				  BoolInpSpec(true) );
-    loadnowfld_->attach( alignedBelow, sessionfld_ );
-
-    mAttachCB( postFinalize(), uiODMainAutoSessionDlg::initDlg );
-}
-
-~uiODMainAutoSessionDlg()
-{
-    detachAllNotifiers();
-}
-
-void initDlg( CallBacker* )
-{
-    useChg( nullptr );
-}
-
-void useChg( CallBacker* )
-{
-    const bool douse = usefld_->getBoolValue();
-    const bool dosel = douse ? doselfld_->getBoolValue() : false;
-    doselfld_->display( douse );
-    sessionfld_->display( dosel );
-    loadnowfld_->display( dosel );
-}
-
-
-bool acceptOK( CallBacker* ) override
-{
-    loadnow_ = false;
-    const bool douse = usefld_->getBoolValue();
-    const bool dosel = doselfld_->getBoolValue();
-    if ( !dosel )
-    {
-	ODSession::setStartupData( douse, MultiID::udf() );
-	return true;
-    }
-
-    MultiID sessionkey;
-    if ( douse )
-    {
-	const IOObj* ioobj = sessionfld_->ioobj();
-	if ( !ioobj )
-	    return false;
-
-	sessionkey = ioobj->key();
-    }
-
-    ODSession::setStartupData( douse, sessionkey );
-    loadnow_ = douse && loadnowfld_->getBoolValue();
-    return true;
-}
-
-    uiGenInput*		usefld_;
-    uiGenInput*		doselfld_;
-    uiIOObjSel*		sessionfld_;
-    uiGenInput*		loadnowfld_;
-    bool		loadnow_		= false;
-};
-
-
-void uiODMain::autoSession()
-{
-    uiODMainAutoSessionDlg dlg( this );
-    if ( dlg.go() && dlg.loadnow_ )
-	restoreSession( dlg.sessionfld_->ioobj() );
-}
-
-
-class uiODMainAutoSaveSessionDlg : public uiDialog
-{ mODTextTranslationClass(uiODMainAutoSaveSessionDlg);
-public:
-
-uiODMainAutoSaveSessionDlg( uiParent* p, const MultiID& cursessid )
-    : uiDialog(p,Setup(tr("Auto-save Session"),
-		       mODHelpKey(mSessionSaveRestoreHelpID)))
-    , cursessid_(cursessid)
-{
-    bool douse = true;
-    int interval = ODSession::cAutoSaveDefInterval();
-    ODSession::getAutoSaveData( douse, interval );
-
-    usefld_ = new uiGenInput( this, tr("Auto-save Session"),
-			      BoolInpSpec(douse,uiStrings::sEnabled(),
-						uiStrings::sDisabled()) );
-    const StepInterval<int> intervalrg( ODSession::cAutoSaveMinInterval(),
-					ODSession::cAutoSaveMaxInterval(), 1 );
-    intervalfld_ = new uiGenInput( this, tr("Save every"),
-				   IntInpSpec(interval,intervalrg) );
-    intervalfld_->attach( alignedBelow, usefld_ );
-    minutelbl_ = new uiLabel( this, tr("(minutes)") );
-    minutelbl_->attach( rightTo, intervalfld_ );
-    overwriteinfobut_ = new uiOfferInfo( this, false );
-
-    if ( cursessid_.isUdf() )
-	overwriteinfobut_->attach( rightTo, minutelbl_ );
-    else
-    {
-	const bool overwrite = ODSession::getAutoSaveOverwriteSelected();
-	overwritefld_ = new uiGenInput( this, tr("Overwrite current Session"),
-				BoolInpSpec(overwrite,uiStrings::sEnabled(),
-						      uiStrings::sDisabled()) );
-	overwritefld_->attach( alignedBelow, intervalfld_ );
-	overwriteinfobut_->attach( rightOf, overwritefld_ );
-    }
-
-    // Longest label, so the OK button is created wide enough.
-    setOkText( tr("Apply and Save") );
-    mAttachCB( postFinalize(), uiODMainAutoSaveSessionDlg::initDlgCB );
-}
-
-
-~uiODMainAutoSaveSessionDlg()
-{
-    detachAllNotifiers();
-}
-
-
-void initDlgCB( CallBacker* )
-{
-    updateOverwriteInfo();
-
-    uiButton* okbut = button( OK );
-    if ( okbut )
-	okbut->setMinimumWidthInChar( 18 );
-
-    useChgCB( nullptr );
-
-    if ( callbacksattached_ )
-	return;
-
-    callbacksattached_ = true;
-    mAttachCB( usefld_->valueChanged,
-	       uiODMainAutoSaveSessionDlg::useChgCB );
-}
-
-
-void useChgCB( CallBacker* )
-{
-    const bool douse = usefld_->getBoolValue();
-    intervalfld_->display( douse );
-    minutelbl_->display( douse );
-    overwriteinfobut_->display( douse );
-    if ( overwritefld_ )
-	overwritefld_->display( douse );
-
-    setOkText( douse ? tr("Apply and Save") : uiStrings::sApply() );
-}
-
-
-void updateOverwriteInfo()
-{
-    if ( cursessid_.isUdf() )
-    {
-	overwriteinfobut_->setInfo(
-	    tr("No Session is currently selected, so Auto-save "
-	       "writes to the default auto-save Session for "
-	       "this survey.").getString(),
-	    tr("Auto-save Session") );
-	return;
-    }
-
-    BufferString infotxt( "<html><body>" );
-    infotxt.add( "<b>Enabled:</b> Auto-save overwrites the " )
-	   .add( "current Session." )
-	   .add( "<br><br>" )
-	   .add( "<b>Disabled:</b> Auto-save writes to the " )
-	   .add( "default auto-save Session file for this survey " )
-	   .add( "and leaves the current Session unchanged." )
-	   .add( "</body></html>" );
-    overwriteinfobut_->setInfo( infotxt.buf(),
-				tr("Overwrite current Session") );
-}
-
-
-bool acceptOK( CallBacker* ) override
-{
-    const bool douse = usefld_->getBoolValue();
-    const int interval = intervalfld_->getIntValue();
-    if ( douse && (interval<ODSession::cAutoSaveMinInterval() ||
-		   interval>ODSession::cAutoSaveMaxInterval()) )
-    {
-	uiMSG().error(
-	    tr("Auto-save interval must be between %1 and %2 minutes")
-		.arg(ODSession::cAutoSaveMinInterval())
-		.arg(ODSession::cAutoSaveMaxInterval()) );
-	return false;
-    }
-
-    ODSession::setAutoSaveData( douse, interval );
-    if ( overwritefld_ )
-	ODSession::setAutoSaveOverwriteSelected(
-				overwritefld_->getBoolValue() );
-
-    return true;
-}
-
-    MultiID		cursessid_;
-    bool		callbacksattached_	= false;
-    uiGenInput*		usefld_;
-    uiGenInput*		intervalfld_;
-    uiLabel*		minutelbl_;
-    uiGenInput*		overwritefld_		= nullptr;
-    uiOfferInfo*	overwriteinfobut_;
-};
-
-
-static bool sAutoSaveOK = false;
-
-void uiODMain::autoSaveSession()
-{
-    uiODMainAutoSaveSessionDlg dlg( this, cursessid_ );
-    if ( !dlg.go() )
-	return;
-
-    bool douse = true;
-    int mins = ODSession::cAutoSaveDefInterval();
-    ODSession::getAutoSaveData( douse, mins );
-    if ( douse )
-	resolveAutoSaveOverwrite();
-
-    if ( !douse )
-    {
-	updateAutoSaveTimer();
-	return;
-    }
-
-    updateAutoSaveTimer( false );
-    autoSaveSessionCB( nullptr );
-    if ( !sAutoSaveOK )
-	return;
-
-    autosavestatustimer_.start( 2000, true );
-}
-
-
-void uiODMain::autoSaveStatusTimerCB( CallBacker* )
-{
-    bool use = true;
-    int every = ODSession::cAutoSaveDefInterval();
-    ODSession::getAutoSaveData( use, every );
-    if ( !use )
-	return;
-
-    setTransientStatusMsg(
-	    tr("Session auto-save every %1 min").arg(every) );
-}
 
 
 void uiODMain::restoreSession( const IOObj* ioobj )
@@ -932,37 +745,6 @@ void uiODMain::doRestoreSession()
 }
 
 
-void uiODMain::handleStartupSession()
-{
-    bool douse = false;
-    MultiID id;
-    ODSession::getStartupData( douse, id );
-    if ( !douse || id.isUdf() )
-	return;
-
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj )
-	return;
-
-    const uiString msg = tr("This survey has a Session selected for auto-load."
-			    "\nRestore Session '%1' now?").arg( ioobj->name() );
-    const bool res = uiMSG().askGoOn( msg, true );
-    if ( !res )
-    {
-	if ( applMgr().visServer()->nrScenes() == 0 )
-	    sceneMgr().addDefaultScene();
-
-	if ( cursessid_.isUdf() )
-	    warnAutoSaveNoSession();
-
-	return;
-    }
-
-    cursessid_ = id;
-    restoreSession( ioobj.ptr() );
-}
-
-
 void uiODMain::sessTimerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
@@ -975,318 +757,17 @@ void uiODMain::autoloadSessionCB( CallBacker* )
     if ( !checkedrestart )
     {
 	checkedrestart = true;
-	if ( restoreRestartPars() )
+	if ( sessionctl_ && sessionctl_->restoreRestart() )
 	    return;
     }
 
-    handleStartupSession();
+    const bool declined = sessionctl_ ? sessionctl_->offerStartupSession()
+				      : false;
+    if ( sessionctl_ )
+	sessionctl_->afterStartupSession( declined );
 }
 
 
-/* Session-related keys / names used only in this file.
-   Shared Settings keys live on ODSession. */
-static const char* sAutoSaveSessionName()
-			{ return ODSession::sAutoSaveSessionName(); }
-static const char* sKeyNoSessOverwriteWarn()
-			{ return "dTect.Autosave no session overwrite warn"; }
-static const char* sKeyNoSessBackupWarn()
-			{ return "dTect.Autosave no session backup warn"; }
-static const char* sKeyCloseNoSessionAsk()
-			{ return "dTect.Close no session save ask"; }
-static const char* sKeyRestartSurvey()	{ return "Survey.Path"; }
-static const char* sKeyRestartSession()	{ return "Session.ID"; }
-static const char* sKeyRestartSeisPL()	{ return "Seis"; }
-static const char* sKeyRestartHorPL()	{ return "Horizon"; }
-static const char* sRestartParsFile()	{ return "restart.pars"; }
-
-
-static MultiID getOrCreateAutoSaveSession()
-{
-    IOObjContext ctxt = mIOObjContext( ODSession );
-    PtrMan<IOObj> existing = IOM().get( ctxt, sAutoSaveSessionName() );
-    if ( existing )
-	return existing->key();
-
-    ctxt.forread_ = false;
-    CtxtIOObj ctio( ctxt );
-    ctio.setName( sAutoSaveSessionName() );
-    IOM().getNewEntry( ctio );
-    if ( !ctio.ioobj_ )
-	return MultiID::udf();
-
-    const MultiID mid = ctio.ioobj_->key();
-    const bool committed = IOM().commitChanges( *ctio.ioobj_ );
-    delete ctio.ioobj_;
-    ctio.ioobj_ = nullptr;
-    return committed ? mid : MultiID::udf();
-}
-
-
-static bool writeAutoSaveFile( const ODSession& session, const char* fnm,
-				uiString& err )
-{
-    if ( StringView(fnm).isEmpty() )
-    {
-	err = od_static_tr( "writeAutoSaveFile", "No auto-save file name" );
-	return false;
-    }
-
-    const FilePath fp( fnm );
-    File::createDir( fp.pathOnly() );
-
-    const BufferString newfnm( fnm, ".new" );
-    const BufferString bakfnm( fnm, ".bak" );
-    bool wrote = false;
-    {
-	od_ostream strm( newfnm.buf() );
-	if ( !strm.isOK() )
-	{
-	    err = od_static_tr( "writeAutoSaveFile",
-				"Cannot open '%1'" ).arg( newfnm );
-	    return false;
-	}
-
-	IOPar iop( ODSessionTranslatorGroup::sGroupName() );
-	session.fillPar( iop );
-	wrote = iop.write( strm, mTranslGroupName(ODSession) );
-    }
-
-    if ( !wrote )
-    {
-	File::remove( newfnm );
-	err = od_static_tr( "writeAutoSaveFile",
-			    "Cannot write Session file '%1'" ).arg( fnm );
-	return false;
-    }
-
-    if ( File::exists(bakfnm) )
-	File::remove( bakfnm );
-
-    if ( File::exists(fnm) && !File::rename(fnm,bakfnm) )
-    {
-	File::remove( newfnm );
-	err = od_static_tr( "writeAutoSaveFile",
-			    "Cannot create backup file '%1'" ).arg( bakfnm );
-	return false;
-    }
-
-    if ( !File::rename(newfnm,fnm) )
-    {
-	err = od_static_tr( "writeAutoSaveFile",
-			    "Cannot store auto-save file '%1'" ).arg( fnm );
-	return false;
-    }
-
-    return true;
-}
-
-
-void uiODMain::warnAutoSaveNoSession()
-{
-    bool douse = true;
-    int mins = ODSession::cAutoSaveDefInterval();
-    ODSession::getAutoSaveData( douse, mins );
-    if ( !douse )
-	return;
-
-    const bool overwrite = ODSession::getAutoSaveOverwriteSelected();
-    const char* key = overwrite ? sKeyNoSessOverwriteWarn()
-				: sKeyNoSessBackupWarn();
-    if ( Settings::common().isFalse(key) )
-	return;
-
-    uiString msg;
-    if ( overwrite )
-	msg = tr( "No Session is selected. Select a Session, "
-		  "otherwise Auto-save will write to the default "
-		  "auto-save Session for this survey." );
-    else
-	msg = tr( "Auto-save is enabled. Changes will be saved to "
-		  "the default auto-save Session for this survey." );
-
-    const uiString empty = uiString::emptyString();
-    const bool dontshow = overwrite ? uiMSG().warning( msg, empty, empty, true )
-				: uiMSG().message( msg, empty, empty, true );
-    if ( !dontshow )
-	return;
-
-    Settings::common().setYN( key, false );
-    Settings::common().write();
-}
-
-
-static bool canOverwriteSession( const MultiID& sessid )
-{
-    if ( sessid.isUdf() )
-	return false;
-
-    PtrMan<IOObj> ioobj = IOM().get( sessid );
-    if ( !ioobj || ioobj->implReadOnly() || IOM().isReadOnly(ioobj->key()) )
-	return false;
-
-    return ioobj->belongsToCurrentUser();
-}
-
-
-void uiODMain::resolveAutoSaveOverwrite()
-{
-    if ( !ODSession::getAutoSaveOverwriteSelected() )
-	return;
-
-    if ( cursessid_.isUdf() || canOverwriteSession(cursessid_) )
-	return;
-
-    const uiString msg = tr( "The current Session cannot be overwritten. "
-			     "Auto-save will write to the default auto-save "
-			     "Session file for this survey instead." );
-    uiMSG().message( msg );
-
-    ODSession::setAutoSaveOverwriteSelected( false );
-}
-
-
-static bool sessionFileExists( const MultiID& id )
-{
-    PtrMan<IOObj> ioobj = id.isUdf() ? nullptr : IOM().get( id );
-    return ioobj && ioobj->implExists( true );
-}
-
-
-static bool autoSaveSessionFileExists()
-{
-    const IOObjContext ctxt = mIOObjContext( ODSession );
-    PtrMan<IOObj> ioobj = IOM().get( ctxt, sAutoSaveSessionName() );
-    return ioobj && ioobj->implExists( true );
-}
-
-
-void uiODMain::updateAutoSaveTimer()
-{
-    updateAutoSaveTimer( true );
-}
-
-
-void uiODMain::updateAutoSaveTimer( bool showstatus )
-{
-    const bool wasactive = autosavesessiontimer_.isActive();
-    autosavesessiontimer_.stop();
-
-    bool douse = true;
-    int mins = ODSession::cAutoSaveDefInterval();
-    ODSession::getAutoSaveData( douse, mins );
-    if ( !douse )
-    {
-	if ( wasactive && showstatus )
-	    setTransientStatusMsg( tr("Session auto-save disabled") );
-
-	return;
-    }
-
-    autosavesessiontimer_.start( mins * 60 * 1000, false );
-    if ( !showstatus )
-	return;
-
-    setTransientStatusMsg( tr("Session auto-save every %1 min").arg(mins) );
-}
-
-
-void uiODMain::autoSaveSessionCB( CallBacker* cb )
-{
-    static bool saving = false;
-    sAutoSaveOK = false;
-    bool douse = true;
-    int mins = ODSession::cAutoSaveDefInterval();
-    ODSession::getAutoSaveData( douse, mins );
-    if ( saving || !douse || restoringsess_ || !IOM().isOK() )
-	return;
-
-    saving = true;
-    const bool fromtimer = cb == &autosavesessiontimer_;
-    if ( fromtimer )
-    {
-	setTransientStatusMsg( tr("Saving Session...") );
-	uiMain::processEvents( 10 );
-    }
-
-    const bool overwrite = ODSession::getAutoSaveOverwriteSelected() &&
-			   canOverwriteSession( cursessid_ );
-    bool ok = true;
-    bool unchanged = false;
-    ODSession sess;
-    ODSession* prevsess = cursession_;
-    cursession_ = &sess;
-    uiString errmsg;
-    static ODSession lastwritten;
-    static bool havewritten = false;
-    if ( !updateSession() )
-    {
-	cursession_ = prevsess;
-	ok = false;
-    }
-    else
-    {
-	const bool contentchanged = !havewritten || !(sess==lastwritten);
-	const bool defaultmissing = !autoSaveSessionFileExists();
-	const bool currentmissing = overwrite &&
-				    !sessionFileExists( cursessid_ );
-	const bool writecurrent = overwrite &&
-				  (contentchanged || currentmissing);
-	const bool writedefault = defaultmissing ||
-				  (!overwrite && contentchanged);
-	if ( !writecurrent && !writedefault )
-	{
-	    cursession_ = prevsess;
-	    unchanged = true;
-	}
-	else if ( writecurrent )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( cursessid_ );
-	    ok = ioobj && !ioobj->implReadOnly() &&
-			  !IOM().isReadOnly( ioobj->key() ) &&
-			ODSessionTranslator::store( sess, ioobj.ptr(), errmsg );
-	    if ( ok )
-	    {
-		lastwritten = sess;
-		havewritten = true;
-		lastsession_ = sess;
-		cursession_ = &lastsession_;
-	    }
-	    else
-		cursession_ = prevsess;
-	}
-
-	if ( ok && writedefault )
-	{
-	    const MultiID id = getOrCreateAutoSaveSession();
-	    PtrMan<IOObj> ioobj = id.isUdf() ? nullptr : IOM().get( id );
-	    const BufferString fnm = ioobj ? ioobj->mainFileName()
-					   : BufferString::empty();
-	    ok = !fnm.isEmpty() &&
-		 writeAutoSaveFile( sess, fnm.buf(), errmsg );
-	    if ( !writecurrent )
-		cursession_ = prevsess;
-
-	    if ( ok )
-	    {
-		lastwritten = sess;
-		havewritten = true;
-	    }
-	}
-    }
-
-    saving = false;
-    sAutoSaveOK = ok;
-    if ( !ok )
-    {
-	setTransientStatusMsg( tr("Auto-save Session failed") );
-	if ( !errmsg.isEmpty() )
-	    ErrMsg( errmsg );
-    }
-    else if ( unchanged )
-	setTransientStatusMsg( tr("Session auto-save: no changes") );
-    else
-	setTransientStatusMsg( tr("Session auto-saved") );
-}
 
 
 void uiODMain::afterStartupCB( CallBacker* )
@@ -1357,8 +838,6 @@ void uiODMain::go()
 
     mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
     autoloadsessiontimer_.start( 500, true );
-    mAttachCB( autosavesessiontimer_.tick, uiODMain::autoSaveSessionCB );
-    updateAutoSaveTimer();
 }
 
 
@@ -1435,6 +914,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 void uiODMain::afterSurveyChgCB( CallBacker* )
 {
     updateCaption();
+    cursessid_.setUdf();
     autoloadsessiontimer_.start( 500, true );
 }
 
@@ -1503,31 +983,6 @@ void uiODMain::updateCaption()
 }
 
 
-bool uiODMain::askCloseWithoutSession()
-{
-    if ( Settings::common().isFalse(sKeyCloseNoSessionAsk()) )
-	return true;
-
-    bool dontshow = false;
-    const uiString msg = tr( "No active Session found. Do you want to save your"
-			     " current work to a Session before closing?" );
-    const int res = uiMSG().question( msg, uiStrings::sSave(),
-				      tr("Close without saving"),
-				      uiStrings::sCancel(),
-				      uiString::emptyString(), &dontshow );
-    if ( dontshow )
-    {
-	Settings::common().setYN( sKeyCloseNoSessionAsk(), false );
-	Settings::common().write();
-    }
-
-    if ( res == 1 )
-	return saveSessionDlg();
-
-    return res == 0;
-}
-
-
 bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 {
     saveSettings();
@@ -1541,10 +996,15 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 
     if ( !closeactivebatch || doconfirm )
     {
+	bool handled = false;
+	bool accept = false;
 	const bool nosession = !restarting_ && cursessid_.isUdf();
-	if ( nosession )
+	if ( nosession && sessionctl_ )
+	    handled = sessionctl_->confirmClose( restarting_, accept );
+
+	if ( handled )
 	{
-	    if ( !askCloseWithoutSession() )
+	    if ( !accept )
 		return false;
 	}
 	else if ( !uiMSG().askGoOn(tr("Do you want to %1 %2?")
@@ -1608,89 +1068,17 @@ bool uiODMain::prepareRestart( bool withinteraction, bool doconfirm )
     const bool haspreload = seispar.size()!=0 || horpar.size()!=0;
     bool keepsession = !cursessid_.isUdf();
     bool keeppreload = haspreload;
-    if ( withinteraction )
-    {
-	const bool cansave = !cursessid_.isUdf() ||
-			     hasSceneItems( applMgr().visServer() );
-	keepsession = false;
-	const uiString goon = tr("Do you want to save your current work to a "
-			"Session so that it can be restored after restart?");
-	if ( cansave && uiMSG().askGoOn(goon,uiStrings::sSave(),
-					     tr("Don't save")) )
-	    keepsession = saveSessionDlg();
-
-	keeppreload = haspreload && uiMSG().askGoOn(
-		tr("Restore Pre-load data after restart?") );
-    }
+    if ( sessionctl_ )
+	sessionctl_->adjustRestart( withinteraction, keepsession, keeppreload );
 
     if ( !closeOK(withinteraction,doconfirm) )
 	return false;
 
-    if ( !keepsession && !keeppreload )
-	return true;
-
-    IOPar par;
-    par.set( sKeyRestartSurvey(), SI().diskLocation().fullPath() );
-    if ( keepsession && !cursessid_.isUdf() )
-	par.set( sKeyRestartSession(), cursessid_ );
-
-    if ( keeppreload && seispar.size()!=0 )
-	par.mergeComp( seispar, sKeyRestartSeisPL() );
-
-    if ( keeppreload && horpar.size()!=0 )
-	par.mergeComp( horpar, sKeyRestartHorPL() );
-
-    const BufferString fnm = GetSettingsFileName( sRestartParsFile() );
-    if ( !par.write(fnm.buf(),"Restart") )
-	uiMSG().error( tr("Could not store the restart information") );
+    if ( sessionctl_ )
+	sessionctl_->writeRestartState( keepsession, keeppreload,
+					seispar, horpar );
 
     return true;
-}
-
-
-bool uiODMain::restoreRestartPars()
-{
-    const BufferString fnm = GetSettingsFileName( sRestartParsFile() );
-    if ( !File::exists(fnm.buf()) )
-	return false;
-
-    IOPar par;
-    const bool ok = par.read( fnm.buf(), "Restart" );
-    File::remove( fnm.buf() );
-    if ( !ok )
-	return false;
-
-    BufferString survpath;
-    if ( !par.get(sKeyRestartSurvey(),survpath) )
-	return false;
-
-    const BufferString cursurv = SI().diskLocation().fullPath();
-    if ( survpath != cursurv )
-	return false;
-
-    bool didsession = false;
-    MultiID mid = MultiID::udf();
-    par.get( sKeyRestartSession(), mid );
-    if ( !mid.isUdf() )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	if ( ioobj )
-	{
-	    cursessid_ = mid;
-	    restoreSession( ioobj.ptr() );
-	    didsession = true;
-	}
-    }
-
-    PtrMan<IOPar> seispar = par.subselect( sKeyRestartSeisPL() );
-    if ( seispar && applMgr().seisServer() )
-	applMgr().seisServer()->usePar( *seispar );
-
-    PtrMan<IOPar> horpar = par.subselect( sKeyRestartHorPL() );
-    if ( horpar && applMgr().EMServer() )
-	applMgr().EMServer()->usePar( *horpar );
-
-    return didsession;
 }
 
 

@@ -56,6 +56,7 @@ public:
     uiMenu*		toolsMnu()		{ return toolsmnu_; }
     uiMenu*		installMnu()		{ return installmnu_; }
     uiMenu*		preLoadMenu()		{ return preloadmnu_; }
+    uiMenu*		sessionMnu()		{ return sessionmnu_; }
     uiMenu*		createSeisOutputMenu()	{ return csoitm_; }
 
     uiMenu*		getBaseMnu(uiODApplMgr::ActType);
@@ -101,6 +102,7 @@ protected:
     uiODHelpMenuMgr*	helpmgr_			= nullptr;
 
     uiMenu*		surveymnu_;
+    uiMenu*		sessionmnu_			= nullptr;
     uiMenu*		analmnu_;
     uiMenu*		analwellmnu_;
     uiMenu*		layermodelmnu_;
