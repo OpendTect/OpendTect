@@ -109,7 +109,7 @@ bool isVSGAvailable()
 #else
     return false;
 #endif
-   // return vsgLibAccess();
+
 }
 
 

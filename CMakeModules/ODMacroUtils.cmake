@@ -79,7 +79,7 @@ list( APPEND SETUPNMS
        USEQT
        INSTQT
        USEOSG
-	   USEVSG
+       USEVSG
        USEZLIB
        LINKOPENSSL
        LINKCRYPTO

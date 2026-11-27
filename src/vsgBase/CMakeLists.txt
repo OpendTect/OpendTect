@@ -5,10 +5,6 @@
 #________________________________________________________________________
 #
 
-set( OD_MODULE_DEPS visBase )
-set( OD_FOLDER "Visualization (3D)" )
-set( OD_USEVSG TRUE )
-
 if ( NOT ( TARGET Vulkan::Vulkan AND TARGET vsg::vsg ) )
     get_filename_component( OD_MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
     list( REMOVE_ITEM OD_MODULES ${OD_MODULE_NAME} )
@@ -16,6 +12,9 @@ if ( NOT ( TARGET Vulkan::Vulkan AND TARGET vsg::vsg ) )
     return()
 endif()
 
+set( OD_MODULE_DEPS visBase )
+set( OD_FOLDER "Visualization (3D)" )
+set( OD_USEVSG TRUE )
 set( OD_MODULE_SOURCES
 	initvsgbase.cc
 	vsggeoaxes.cc
@@ -83,9 +82,7 @@ set( OD_TEST_PROGS
 	visvsgtext.cc
 	visvsgthumbwheel.cc
 )
-if ( NOT OD_NO_VSG )
-    list( APPEND OD_TEST_PROGS visvsgtransform.cc )
-endif()
+
 set( GPUTESTS
 	test_vsggeo
 	test_vsggeoaxes
@@ -104,6 +101,7 @@ set( GPUTESTS
 	test_visvsgaxes
 )
 
+list( APPEND OD_TEST_PROGS visvsgtransform.cc )
 if ( UNIX )
     if ( NOT TARGET Fontconfig::Fontconfig OR NOT TARGET Freetype::Freetype )
 	message( SEND_ERROR
