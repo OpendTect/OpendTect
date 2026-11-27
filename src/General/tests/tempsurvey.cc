@@ -12,13 +12,9 @@ ________________________________________________________________________
 #include "coordsystem.h"
 #include "file.h"
 #include "filepath.h"
-//#include "ioman.h"
 #include "jsonkeystrs.h"
-//#include "keystrs.h"
 #include "moddepmgr.h"
 #include "odjson.h"
-//#include "plugins.h"
-//#include "survinfo.h"
 #include "testprog.h"
 #include "ziputils.h"
 
@@ -32,6 +28,9 @@ static BufferString jsonsurvzip_;
 static BufferString defsurvbasedir_;
 static BufferString defsurvzip_;
 static BufferString zipbasedir_;
+static BufferString utf8survbasedir_;
+static BufferString utf8survzip_;
+static BufferString utf8zipbasedir_;
 
 
 static void registerSurveyPaths( const SurveyCreator& surv,
@@ -88,6 +87,14 @@ static void cleanup()
 	File::removeDir( zipbasedir_.buf() );
 
     removeSurveyZipFile( defsurvzip_.buf() );
+
+    if ( File::exists(utf8survbasedir_.buf()) )
+	File::removeDir( utf8survbasedir_.buf() );
+
+    if ( File::exists(utf8zipbasedir_.buf()) )
+	File::removeDir( utf8zipbasedir_.buf() );
+
+    removeSurveyZipFile( utf8survzip_.buf() );
 }
 
 
@@ -248,7 +255,7 @@ static bool testSurveyAgainstJSON( const OD::JSON::Object& obj )
     const double expsrd =
 		obj.getDoubleValue( sJSONKey::SeismicRefDatum() );
     mRunStandardTestWithError(
-	mIsEqual(expsrd,mCast(double,SI().seismicReferenceDatum()),1e-4),
+	mIsEqual(expsrd,sCast(double,SI().seismicReferenceDatum()),1e-4),
 	"Seismic reference datum",
 	expectValErrMsg(expsrd,SI().seismicReferenceDatum()) );
 
@@ -451,6 +458,82 @@ static bool testJsonConstructorSurvey( bool managed )
 }
 
 
+static bool testUtf8Survey( bool managed )
+{
+    const char* survnm =
+	"Temp \xC3\xB8y J\xC3\xBCrgen \xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2"
+	"\xD0\xB5\xD1\x82 \xE4\xBD\xA0\xE5\xA5\xBD";
+    const char* survdirnm =
+	"Temp_\xC3\xB8y_J\xC3\xBCrgen_\xD0\xBF\xD1\x80\xD0\xB8\xD0\xB2"
+	"\xD0\xB5\xD1\x82_\xE4\xBD\xA0\xE5\xA5\xBD";
+
+    EmptyTempSurvey tempsurvey( survnm );
+    tempsurvey.setManaged( managed );
+    registerSurveyPaths( tempsurvey, utf8survbasedir_, utf8survzip_ );
+    mRunStandardTest( tempsurvey.isOK(), "Constructed UTF-8 survey" );
+    mRunStandardTestWithError(
+		tempsurvey.getSurveyDir()==survdirnm,
+		"UTF-8 survey directory name",
+		expectValErrMsg(survdirnm,tempsurvey.getSurveyDir().buf()) );
+
+    uiRetVal ret = tempsurvey.mount();
+    mRunStandardTestWithError( ret.isOK() && tempsurvey.isMounted(),
+			       "Mount UTF-8 survey", ret.getText() );
+    ret = tempsurvey.activate();
+    mRunStandardTestWithError( ret.isOK(), "Activate UTF-8 survey",
+			       ret.getText() );
+
+    ret = tempsurvey.save();
+    mRunStandardTestWithError( ret.isOK(), "Save UTF-8 survey to zip",
+			       ret.getText() );
+
+    BufferStringSet entries;
+    uiString err;
+    mRunStandardTestWithError(
+	ZipUtils::makeFileList(utf8survzip_.buf(),entries,err),
+	"List the UTF-8 survey zip", toString(err) );
+    const BufferString omfentry( survdirnm, "/.omf" );
+    mRunStandardTest( entries.isPresent(omfentry.buf()),
+		      BufferString("UTF-8 survey entries: ",
+				   entries.cat(", ")) );
+
+    ret = tempsurvey.unmount( false );
+    mRunStandardTestWithError( ret.isOK() && !tempsurvey.isMounted(),
+			       "Unmount UTF-8 survey", ret.getText() );
+
+    SurveyFile surveyfile( utf8survzip_.buf() );
+    surveyfile.setManaged( managed );
+    utf8zipbasedir_.set( surveyfile.getTempBaseDir() );
+    mRunStandardTest( surveyfile.isOK(), "Open UTF-8 survey zip file" );
+    mRunStandardTestWithError(
+		surveyfile.getSurveyDir()==survdirnm,
+		"UTF-8 survey directory read from the zip",
+		expectValErrMsg(survdirnm,surveyfile.getSurveyDir().buf()) );
+
+    ret = surveyfile.mount();
+    mRunStandardTestWithError( ret.isOK() && surveyfile.isMounted(),
+			       "Unzip and mount UTF-8 survey", ret.getText() );
+
+    ret = surveyfile.activate();
+    mRunStandardTestWithError( ret.isOK(), "Activate unzipped UTF-8 survey",
+			       ret.getText() );
+    mRunStandardTestWithError(
+		SI().diskLocation().dirName()==survdirnm,
+		"Active unzipped UTF-8 survey directory",
+		expectValErrMsg(survdirnm,
+				SI().diskLocation().dirName().buf()) );
+
+    ret = surveyfile.save();
+    mRunStandardTestWithError( ret.isOK(), "Save unzipped UTF-8 survey back",
+			       ret.getText() );
+    ret = surveyfile.unmount( false );
+    mRunStandardTestWithError( ret.isOK() && !surveyfile.isMounted(),
+			       "Unmount unzipped UTF-8 survey", ret.getText() );
+
+    return true;
+}
+
+
 //Main Program
 int mTestMainFnName( int argc, char** argv )
 {
@@ -484,6 +567,10 @@ int mTestMainFnName( int argc, char** argv )
 	tstStream( true ) << surveyfile.errMsg() << od_endl;
 	return 1;
     }
+
+    tstStream() << "-------Temporary UTF-8 Survey and zip file-----" << od_endl;
+    if ( !testUtf8Survey(managed) )
+	return 1;
 
     tstStream() << "----Temporary Empty Survey from JSON---------" << od_endl;
     if ( !testEmptyTempSurveyFromJSON(managed) )

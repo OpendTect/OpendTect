@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "ptrman.h"
 #include "separstr.h"
+#include "string2.h"
 #include "task.h"
 #include "timefun.h"
 #include "uistrings.h"
@@ -97,6 +98,9 @@ ________________________________________________________________________
 #define mLUNIXFileAttr 2
 #define mVerNeedToExtract 45
 #define mVersionZip 63 // 6.3
+
+#define mUtf8NamesBit 3
+#define mSupportedBitFlags 0x080F
 
 #define mLVerNeedToExtract 4
 #define mLGenPurBitFlag 6
@@ -560,9 +564,9 @@ void ZipFileInfo::setFullFileName( const char* fnm, const FilePath& basepath )
 
 void ZipFileInfo::writeAttrToBuffer( unsigned char* databuf ) const
 {
-    if ( fullfnm_.isEmpty() )
-	return;
-
+    // Entries read back from an archive have no local path. Their permissions
+    // still have to be written, or an append leaves the previous central-dir
+    // attributes as whatever was in the header buffer.
     char* buf = nullptr;
     if ( perms_.isWindowsAttr() )
     {
@@ -571,6 +575,8 @@ void ZipFileInfo::writeAttrToBuffer( unsigned char* databuf ) const
     }
     else
     {
+	const od_uint16 nullvalue = 0;
+	mInsertToCharBuff( databuf, nullvalue, mLDOSFileAttr, mSizeTwoBytes );
 	OD::setBitValue( databuf[mLDOSFileAttr], 0, !isWritable() );
 	OD::setBitValue( databuf[mLDOSFileAttr], 4, isDirectory() );
 	OD::setBitValue( databuf[mLDOSFileAttr], 5, !isDirectory() );
@@ -588,8 +594,8 @@ void ZipFileInfo::setAttr( const unsigned char* buf, bool fromwin )
     {
 	/* Unix external attributes: high word is st_mode. Do not infer
 	   directory from the execute bits (see D18284). */
-	const od_uint16 unixmode =
-			*mCast( const od_uint16*, buf + mLUNIXFileAttr );
+	od_uint16 unixmode = 0;
+	OD::memCopy( &unixmode, buf + mLUNIXFileAttr, sizeof(unixmode) );
 	const od_uint16 ifmt = unixmode & 0xF000; // S_IFMT
 	if ( ifmt == 0x4000 )	    // S_IFDIR
 	    type_ = File::Type::Directory;
@@ -606,7 +612,9 @@ void ZipFileInfo::setAttr( const unsigned char* buf, bool fromwin )
     sourceiswin_ = fromwin;
     if ( sourceiswin_ )
     {
-	const int permsi = *(od_uint32*)buf;
+	od_uint32 winattr = 0;
+	OD::memCopy( &winattr, buf, sizeof(winattr) );
+	const int permsi = winattr;
 	const File::Permissions fileperms( permsi, sourceiswin_ );
 	if ( __iswin__ )
 	{
@@ -633,7 +641,9 @@ void ZipFileInfo::setAttr( const unsigned char* buf, bool fromwin )
     }
     else
     {
-	const int permsi = *(od_uint16*)(buf+mLUNIXFileAttr);
+	od_uint16 unixattr = 0;
+	OD::memCopy( &unixattr, buf + mLUNIXFileAttr, sizeof(unixattr) );
+	const int permsi = unixattr;
 	//Full preservation: Unix to Unix
 	perms_ = File::Permissions::getFrom( permsi, mUdf(int) );
 	if ( __iswin__ )
@@ -1124,13 +1134,17 @@ void ZipHandler::writeGeneralPurposeFlag( unsigned char* databuf ) const
 	case SuperFast:
 	    OD::setBitValue( databuf[0], 1, 1 );
 	    OD::setBitValue( databuf[0], 2, 1 );
+	    break;
 	case Fast:
 	    OD::setBitValue( databuf[0], 2, 1 );
+	    break;
 	case Normal:
 	    OD::setBitValue( databuf[0], 1, 0 );
 	    OD::setBitValue( databuf[0], 2, 0 );
+	    break;
 	case Maximum:
 	    OD::setBitValue( databuf[0], 1, 1 );
+	    break;
 	default:
 	    OD::setBitValue( databuf[0], 1, 0 );
 	    OD::setBitValue( databuf[0], 2, 0 );
@@ -1201,6 +1215,8 @@ bool ZipHandler::setLocalFileHeader( const ZipFileInfo& fileinfo,
     mLocalFileHeaderSig ( headerbuff );
     mInsertToCharBuff( headerbuff, version,
 		       mLVerNeedToExtract, mSizeTwoBytes );
+    const bool utf8name = OD::hasUnicodeCharacters( fileinfo.getFileName() );
+    OD::setBitValue( headerbuff[mLGenPurBitFlag+1], mUtf8NamesBit, utf8name );
     mInsertToCharBuff( headerbuff, fileinfo.compmethod_,
 		       mLCompMethod, mSizeTwoBytes );
     const od_uint16 dostime = fileinfo.getDosNrSec();
@@ -1454,6 +1470,10 @@ bool ZipHandler::setCentralDirHeader( const ObjectSet<ZipFileInfo>& fileinfos )
     for ( const auto* fileinfo : fileinfos )
     {
 	writeGeneralPurposeFlag( headerbuff+mLGenPurBitFlagCentral );
+	const bool utf8name =
+	    OD::hasUnicodeCharacters( fileinfo->getFileName() );
+	OD::setBitValue( headerbuff[mLGenPurBitFlagCentral+1], mUtf8NamesBit,
+			 utf8name );
 	mInsertToCharBuff( headerbuff, fileinfo->compmethod_,
 			   mLCompMethodCentral, mSizeTwoBytes );
 	const od_uint16 dostime = fileinfo->getDosNrSec();
@@ -1769,7 +1789,7 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 
 	const od_uint16 bitflag = *mCast( od_uint16*, headerbuff +
 						    mLCentralDirBitFlag );
-	if ( bitflag > 14 )
+	if ( bitflag & ~mSupportedBitFlags )
 	{
 	    errormsg_ = tr("Failed to unzip '%1'").arg( srcfile );
 	    errormsg_.appendPhrase( tr("Version of zip format needed "
@@ -1797,7 +1817,9 @@ bool ZipHandler::readCentralDirHeader( ObjectSet<ZipFileInfo>* zfileinfo )
 	fileinfo->binary_ = headerbuff[mLIntFileAttr] == '\0';
 	fileinfo->setAttr( (const unsigned char*)headerbuff+mLExtFileAttr,
 			   fromwin );
-	fileinfo->localheaderoffset_ = *(od_uint32*)(headerbuff + mLRelOffset);
+	od_uint32 reloffset = 0;
+	OD::memCopy( &reloffset, headerbuff + mLRelOffset, sizeof(reloffset) );
+	fileinfo->localheaderoffset_ = reloffset;
 	fileinfo->setFileName( srcfnm.buf(), basepath_ );
 
 	const od_uint16 xtrafldlength =
@@ -1917,10 +1939,13 @@ bool ZipHandler::readZIP64EndOfCentralDirLocator()
 		      mZIP64EndOfDirLocatorSize-mSizeFourBytes );
     const unsigned char* cdoffbufptr = headerbuff +
 						  mLZIP64EndOfDirRecordOffset;
-    offsetofcentraldir_ = *mCast( od_uint64*, cdoffbufptr );
+    od_uint64 cdoffset = 0;
+    OD::memCopy( &cdoffset, cdoffbufptr, sizeof(cdoffset) );
+    offsetofcentraldir_ = cdoffset;
     const unsigned char* totdsksptr =
 			 headerbuff + mLZIP64EndOfDirLocatorTotalDisks;
-    int totaldisks = *mCast( int*, totdsksptr );
+    int totaldisks = 0;
+    OD::memCopy( &totaldisks, totdsksptr, sizeof(totaldisks) );
     if ( totaldisks > 1 )
     {
 	errormsg_ = tr("Failed to unzip '%1'").arg( istrm_->fileName() );
@@ -1967,9 +1992,11 @@ bool ZipHandler::readXtraFlds( const unsigned char* xtrafld, od_uint16 bufsz,
     bool haserror = false; int offs = 0;
     while ( offs < bufsz )
     {
-	const od_uint16 extratag = *mCast( od_uint16*, xtrafld + offs );
+	od_uint16 extratag = 0;
+	OD::memCopy( &extratag, xtrafld + offs, sizeof(extratag) );
 	offs += mSizeTwoBytes;
-	const od_uint16 blocksz = *mCast( od_uint16*, xtrafld + offs );
+	od_uint16 blocksz = 0;
+	OD::memCopy( &blocksz, xtrafld + offs, sizeof(blocksz) );
 	offs += mSizeTwoBytes;
 	const unsigned char* fielddata = xtrafld + offs;
 	if ( extratag == mZIP64Tag )
@@ -1999,21 +2026,27 @@ bool ZipHandler::readXtraFldForZIP64( const unsigned char* xtrafld,
 	return false;
 
     od_uint64 off = 0;
+    od_uint64 value = 0;
     if ( fileinfo.uncompsize_ == mZIP64SizeLimit )
     {
-	fileinfo.uncompsize_ = *mCast( od_uint64*, xtrafld+off );
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	fileinfo.uncompsize_ = value;
 	off += mSizeEightBytes;
     }
 
     if ( fileinfo.compsize_ == mZIP64SizeLimit )
     {
-	fileinfo.compsize_ = *mCast( od_uint64*, xtrafld+off );
+	value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	fileinfo.compsize_ = value;
 	off += mSizeEightBytes;
     }
 
     if ( fileinfo.localheaderoffset_ == mZIP64SizeLimit )
     {
-	fileinfo.localheaderoffset_ = *mCast( od_uint64*, xtrafld+off );
+	value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	fileinfo.localheaderoffset_ = value;
 	off += mSizeEightBytes;
     }
 
@@ -2028,17 +2061,21 @@ bool ZipHandler::readNTFSExtrField( const unsigned char* xtrafld,
 	return false;
 
     od_uint64 off = mSizeFourBytes;
-    const od_uint16 tag1 = *mCast( od_uint16*,xtrafld+off );
+    od_uint16 tag1 = 0;
+    OD::memCopy( &tag1, xtrafld + off, sizeof(tag1) );
     off += mSizeTwoBytes;
-    const od_uint16 size1 = *mCast( od_uint16*,xtrafld+off );
+    od_uint16 size1 = 0;
+    OD::memCopy( &size1, xtrafld + off, sizeof(size1) );
     off += mSizeTwoBytes;
     if ( tag1 != 1 || size1 != 3*mSizeEightBytes )
 	return false;
 
     // values are stored in tenth of microseconds (1e-7), i.e. 1=100ns
-    const od_uint64 ntfsmtime = *mCast( od_uint64*, xtrafld + off );
+    od_uint64 ntfsmtime = 0;
+    OD::memCopy( &ntfsmtime, xtrafld + off, sizeof(ntfsmtime) );
     off += mSizeEightBytes;
-    const od_uint64 ntfsatime = *mCast( od_uint64*, xtrafld + off );
+    od_uint64 ntfsatime = 0;
+    OD::memCopy( &ntfsatime, xtrafld + off, sizeof(ntfsatime) );
     off += mSizeEightBytes;
 
     const std::timespec modtime = Time::getPosixFromNTFS( ntfsmtime );
@@ -2062,7 +2099,9 @@ bool ZipHandler::readXtraTimestampFld( const unsigned char* xtrafld,
     {
 	fileinfo.hasutcheader_ = true;
 	std::timespec modtime;
-	modtime.tv_sec = *mCast( od_uint32*, xtrafld + off );
+	od_uint32 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	modtime.tv_sec = value;
 	modtime.tv_nsec = 0;
 	fileinfo.times_.setModificationTime( modtime );
 	off += mSizeFourBytes;
@@ -2071,7 +2110,9 @@ bool ZipHandler::readXtraTimestampFld( const unsigned char* xtrafld,
     if ( size > off )
     {
 	std::timespec acctime;
-	acctime.tv_sec = *mCast( od_uint32*, xtrafld + off );
+	od_uint32 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	acctime.tv_sec = value;
 	acctime.tv_nsec = 0;
 	fileinfo.times_.setAccessTime( acctime );
 	off += mSizeFourBytes;
@@ -2090,24 +2131,32 @@ bool ZipHandler::readXtraField1( const unsigned char* xtrafld, od_uint16 size,
     od_int64 off = 0;
     fileinfo.hasutcheader_ = true;
     std::timespec modtime, acctime;
-    modtime.tv_sec = *mCast( od_uint32*, xtrafld + off );
+    od_uint32 value = 0;
+    OD::memCopy( &value, xtrafld + off, sizeof(value) );
+    modtime.tv_sec = value;
     modtime.tv_nsec = 0;
     fileinfo.times_.setModificationTime( modtime );
     off += mSizeFourBytes;
-    acctime.tv_sec = *mCast( od_uint32*, xtrafld + off );
+    value = 0;
+    OD::memCopy( &value, xtrafld + off, sizeof(value) );
+    acctime.tv_sec = value;
     acctime.tv_nsec = 0;
     fileinfo.times_.setAccessTime( acctime );
     off += mSizeFourBytes;
 
     if ( size > off )
     {
-	fileinfo.uid_ = *mCast( od_uint16*, xtrafld + off );
+	od_uint16 value2 = 0;
+	OD::memCopy( &value2, xtrafld + off, sizeof(value2) );
+	fileinfo.uid_ = value2;
 	off += mSizeTwoBytes;
     }
 
     if ( size > off )
     {
-	fileinfo.gid_ = *mCast( od_uint16*, xtrafld + off );
+	od_uint16 value2 = 0;
+	OD::memCopy( &value2, xtrafld + off, sizeof(value2) );
+	fileinfo.gid_ = value2;
 	off += mSizeTwoBytes;
     }
 
@@ -2125,31 +2174,60 @@ bool ZipHandler::readXtraUIDGID( const unsigned char* xtrafld, od_uint16 size,
     od_uint32& gid = fileinfo.gid_;
     if ( tag == mInfoZipPrevNewUnixTag )
     {
-	uid = *mCast( od_uint16*, xtrafld );
-	gid = *mCast( od_uint16*, xtrafld+mSizeTwoBytes );
+	od_uint16 value = 0;
+	OD::memCopy( &value, xtrafld, sizeof(value) );
+	uid = value;
+	OD::memCopy( &value, xtrafld + mSizeTwoBytes, sizeof(value) );
+	gid = value;
 	return true;
     }
 
     const unsigned char mUnusedVar version = xtrafld[0];
     od_int64 off = mSizeOneByte;
-    const od_uint8 uidsz = *mCast( od_uint8*, xtrafld + off );
+    od_uint8 uidsz = 0;
+    OD::memCopy( &uidsz, xtrafld + off, sizeof(uidsz) );
     off += mSizeOneByte;
     if ( uidsz == mSizeTwoBytes )
-	uid = *mCast( od_uint16*, xtrafld + off );
+    {
+	od_uint16 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	uid = value;
+    }
     else if ( uidsz == mSizeFourBytes )
-	uid = *mCast( od_uint32*, xtrafld + off );
+    {
+	od_uint32 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	uid = value;
+    }
     else if ( uidsz == mSizeEightBytes )
-	uid = mCast( od_uint32, *mCast(od_uint64*, xtrafld + off) );
+    {
+	od_uint64 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	uid = sCast( od_uint32, value );
+    }
 
     off += uidsz;
-    const od_uint8 gidsz = *mCast( od_uint8*, xtrafld + off );
+    od_uint8 gidsz = 0;
+    OD::memCopy( &gidsz, xtrafld + off, sizeof(gidsz) );
     off += mSizeOneByte;
     if ( gidsz == mSizeTwoBytes )
-	gid = *mCast(od_uint16*, xtrafld + off);
+    {
+	od_uint16 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	gid = value;
+    }
     else if ( gidsz == mSizeFourBytes )
-	gid = *mCast(od_uint32*, xtrafld + off);
+    {
+	od_uint32 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	gid = value;
+    }
     else if ( gidsz == mSizeEightBytes )
-	gid = mCast( od_uint32, *mCast(od_uint64*, xtrafld + off) );
+    {
+	od_uint64 value = 0;
+	OD::memCopy( &value, xtrafld + off, sizeof(value) );
+	gid = sCast( od_uint32, value );
+    }
 
     return true;
 }
@@ -2275,11 +2353,11 @@ bool ZipHandler::extractNextFile( ZipFileInfo& fileinfo )
     }
     else if ( !fileinfo.isDirectory() )
     {
-	if ( !fileinfo.getPermissions().isUdf() )
-		File::setPermissions( destfile, fileinfo.getPermissions() );
-
 	if ( fileinfo.hasModTime() )
 	    File::setTimes( destfile, fileinfo.times_, false );
+
+	if ( !fileinfo.getPermissions().isUdf() )
+	    File::setPermissions( destfile, fileinfo.getPermissions() );
     }
     // Do NOT set folder permissions before all files are unpacked
 
@@ -2336,7 +2414,7 @@ bool ZipHandler::readLocalFileHeader( ZipFileInfo& fileinfo )
     }
 
     od_uint16 bitflag = *mCast( od_uint16*, headerbuff + mLGenPurBitFlag );
-    if ( bitflag > 14 )
+    if ( bitflag & ~mSupportedBitFlags )
     {
 	errormsg_ = tr("Failed to unzip '%1'").arg( srcfile );
 	errormsg_.appendPhrase( tr("Version of zip format needed "
@@ -2348,9 +2426,13 @@ bool ZipHandler::readLocalFileHeader( ZipFileInfo& fileinfo )
 		OD::getBitValue( *(headerbuff+mLGenPurBitFlag), 3 );
     if ( !hasdatadescriptor )
     {
-	crc = *mCast( od_uint32*, headerbuff + mLCRC32 );
-	compfilesize = *mCast( od_uint32*, headerbuff + mLCompSize );
-	uncompfilesize = *mCast( od_uint32*, headerbuff + mLUnCompSize );
+	od_uint32 value = 0;
+	OD::memCopy( &value, headerbuff + mLCRC32, sizeof(value) );
+	crc = value;
+	OD::memCopy( &value, headerbuff + mLCompSize, sizeof(value) );
+	compfilesize = value;
+	OD::memCopy( &value, headerbuff + mLUnCompSize, sizeof(value) );
+	uncompfilesize = value;
     }
 
     if ( !fileinfo.hasutcheader_ )

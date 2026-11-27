@@ -412,6 +412,22 @@ static Utf16Prefix utf16Prefix( const QString& str, int nchars )
 
 #endif
 
+
+bool hasUnicodeCharacters( const char* str )
+{
+    if ( !str )
+	return false;
+
+    for ( const unsigned char* ptr = rCast(const unsigned char*,str);
+	  *ptr; ptr++ )
+    {
+	if ( *ptr > 127 )
+	    return true;
+    }
+
+    return false;
+}
+
 } // namespace OD
 
 
