@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uivsgscenesettingsdlg.h"
+#include "uivsgscenepropertydlg.h"
 
 #include "visvsgscenecoltab.h"
 #include "uibutton.h"
@@ -24,9 +24,9 @@ ________________________________________________________________________
 #include "notify.h"
 
 
-uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
+uiVSGScenePropertyDlg::uiVSGScenePropertyDlg( uiParent* p,
 					      uiVSGViewer& viewer )
-    : uiDialog(p,Setup(tr("VSG Scene Settings"),mNoHelpKey))
+    : uiDialog(p,Setup(tr("Scene properties"),mNoHelpKey))
     , viewer_(viewer)
     , hadbgcolor_(viewer.getBackgroundColor())
     , hadannotcolor_(viewer.getAnnotationColor())
@@ -43,16 +43,16 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 {
     bgcolfld_ = new uiColorInput( this, uiColorInput::Setup(hadbgcolor_)
 					.lbltxt(tr("Background color")) );
-    mAttachCB( bgcolfld_->colorChanged, uiVSGSceneSettingsDlg::colorCB );
+    mAttachCB( bgcolfld_->colorChanged, uiVSGScenePropertyDlg::colorCB );
 
     gradientfld_ = new uiCheckBox( this, tr("Gradient background") );
     gradientfld_->setChecked( hadgradient_ );
-    mAttachCB( gradientfld_->activated, uiVSGSceneSettingsDlg::gradientCB );
+    mAttachCB( gradientfld_->activated, uiVSGScenePropertyDlg::gradientCB );
     gradientfld_->attach( alignedBelow, bgcolfld_ );
 
     annotcolfld_ = new uiColorInput( this, uiColorInput::Setup(hadannotcolor_)
 					.lbltxt(tr("Annotation color")) );
-    mAttachCB( annotcolfld_->colorChanged, uiVSGSceneSettingsDlg::colorCB );
+    mAttachCB( annotcolfld_->colorChanged, uiVSGScenePropertyDlg::colorCB );
     annotcolfld_->attach( alignedBelow, gradientfld_ );
 
     auto* bgsep = new uiSeparator( this, "Background separator" );
@@ -64,7 +64,7 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 
     axesfld_ = new uiCheckBox( this, tr("Show axes") );
     axesfld_->setChecked( hadaxes_ );
-    mAttachCB( axesfld_->activated, uiVSGSceneSettingsDlg::axesCB );
+    mAttachCB( axesfld_->activated, uiVSGScenePropertyDlg::axesCB );
     axesfld_->attach( ensureBelow, axeslbl );
 
     BufferStringSet axesstyles;
@@ -72,7 +72,7 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
     axesstylefld_ = new uiGenInput( this, tr("Axes style"),
 				    StringListInpSpec(axesstyles) );
     axesstylefld_->setValue( hadmodernaxes_ ? 1 : 0 );
-    mAttachCB( axesstylefld_->valueChanged, uiVSGSceneSettingsDlg::axesCB );
+    mAttachCB( axesstylefld_->valueChanged, uiVSGScenePropertyDlg::axesCB );
     axesstylefld_->attach( alignedBelow, axesfld_ );
 
     auto* axessep = new uiSeparator( this, "Axes separator" );
@@ -88,14 +88,14 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 				    StringListInpSpec(wheelmodes) );
     wheelmodefld_->setValue( hadwheelmode_ );
     mAttachCB( wheelmodefld_->valueChanged,
-	       uiVSGSceneSettingsDlg::wheelModeCB );
+	       uiVSGScenePropertyDlg::wheelModeCB );
     wheelmodefld_->attach( ensureBelow, wheelslbl );
     wheelmodefld_->attach( alignedWith, axesstylefld_ );
 
     wheelgrowfld_ = new uiCheckBox( this, tr("Enlarge wheels on mouse hover") );
     wheelgrowfld_->setChecked( hadwheelgrow_ );
     mAttachCB( wheelgrowfld_->activated,
-	       uiVSGSceneSettingsDlg::wheelOptionsCB );
+	       uiVSGScenePropertyDlg::wheelOptionsCB );
     wheelgrowfld_->attach( alignedBelow, wheelmodefld_ );
 
     BufferStringSet wheellooks;
@@ -104,7 +104,7 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 				    StringListInpSpec(wheellooks) );
     wheellookfld_->setValue( hadglasswheels_ ? 1 : 0 );
     mAttachCB( wheellookfld_->valueChanged,
-	       uiVSGSceneSettingsDlg::wheelOptionsCB );
+	       uiVSGScenePropertyDlg::wheelOptionsCB );
     wheellookfld_->attach( alignedBelow, wheelgrowfld_ );
 
     auto* wheelssep = new uiSeparator( this, "Wheels separator" );
@@ -116,7 +116,7 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 
     colorbarfld_ = new uiCheckBox( this, tr("Show color bar") );
     colorbarfld_->setChecked( hadcolorbar_ );
-    mAttachCB( colorbarfld_->activated, uiVSGSceneSettingsDlg::colorBarCB );
+    mAttachCB( colorbarfld_->activated, uiVSGScenePropertyDlg::colorBarCB );
     colorbarfld_->attach( ensureBelow, colorbarlbl );
     colorbarfld_->attach( alignedWith, wheellookfld_ );
 
@@ -126,7 +126,7 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 				      StringListInpSpec(colorbarpositions) );
     colorbarposfld_->setValue( hadcolorbarpos_ );
     mAttachCB( colorbarposfld_->valueChanged,
-	       uiVSGSceneSettingsDlg::colorBarPosCB );
+	       uiVSGScenePropertyDlg::colorBarPosCB );
     colorbarposfld_->attach( alignedBelow, colorbarfld_ );
 
     auto* widthfld = new uiLabeledSpinBox( this, uiStrings::sWidth() );
@@ -137,9 +137,9 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
     colorbarwidthfld_->setValue( hadcolorbarwidth_ );
     colorbarheightfld_->setValue( hadcolorbarheight_ );
     mAttachCB( colorbarwidthfld_->valueChanging,
-	       uiVSGSceneSettingsDlg::colorBarSizeCB );
+	       uiVSGScenePropertyDlg::colorBarSizeCB );
     mAttachCB( colorbarheightfld_->valueChanging,
-	       uiVSGSceneSettingsDlg::colorBarSizeCB );
+	       uiVSGScenePropertyDlg::colorBarSizeCB );
     widthfld->attach( alignedBelow, colorbarposfld_ );
     heightfld->attach( rightOf, widthfld );
 
@@ -147,26 +147,26 @@ uiVSGSceneSettingsDlg::uiVSGSceneSettingsDlg( uiParent* p,
 }
 
 
-uiVSGSceneSettingsDlg::~uiVSGSceneSettingsDlg()
+uiVSGScenePropertyDlg::~uiVSGScenePropertyDlg()
 {
     detachAllNotifiers();
 }
 
 
-void uiVSGSceneSettingsDlg::colorCB( CallBacker* )
+void uiVSGScenePropertyDlg::colorCB( CallBacker* )
 {
     viewer_.setBackgroundColor( bgcolfld_->color() );
     viewer_.setAnnotationColor( annotcolfld_->color() );
 }
 
 
-void uiVSGSceneSettingsDlg::gradientCB( CallBacker* )
+void uiVSGScenePropertyDlg::gradientCB( CallBacker* )
 {
     viewer_.setBackgroundGradient( gradientfld_->isChecked() );
 }
 
 
-void uiVSGSceneSettingsDlg::axesCB( CallBacker* )
+void uiVSGScenePropertyDlg::axesCB( CallBacker* )
 {
     viewer_.showRotAxis( axesfld_->isChecked() );
     viewer_.setModernAxes( axesstylefld_->getIntValue() == 1 );
@@ -174,7 +174,7 @@ void uiVSGSceneSettingsDlg::axesCB( CallBacker* )
 }
 
 
-void uiVSGSceneSettingsDlg::wheelModeCB( CallBacker* )
+void uiVSGScenePropertyDlg::wheelModeCB( CallBacker* )
 {
     viewer_.setWheelDisplayMode(
 		uiVSGViewer::WheelMode(wheelmodefld_->getIntValue()) );
@@ -182,21 +182,21 @@ void uiVSGSceneSettingsDlg::wheelModeCB( CallBacker* )
 }
 
 
-void uiVSGSceneSettingsDlg::wheelOptionsCB( CallBacker* )
+void uiVSGScenePropertyDlg::wheelOptionsCB( CallBacker* )
 {
     viewer_.setWheelsGrowOnHover( wheelgrowfld_->isChecked() );
     viewer_.setGlassWheels( wheellookfld_->getIntValue() == 1 );
 }
 
 
-void uiVSGSceneSettingsDlg::colorBarCB( CallBacker* )
+void uiVSGScenePropertyDlg::colorBarCB( CallBacker* )
 {
     viewer_.showColorBar( colorbarfld_->isChecked() );
     updateSensitivity();
 }
 
 
-void uiVSGSceneSettingsDlg::colorBarPosCB( CallBacker* )
+void uiVSGScenePropertyDlg::colorBarPosCB( CallBacker* )
 {
     viewer_.setColorBarPos(
 		ODVsg::SceneColTab::Pos(colorbarposfld_->getIntValue()) );
@@ -210,14 +210,14 @@ void uiVSGSceneSettingsDlg::colorBarPosCB( CallBacker* )
 }
 
 
-void uiVSGSceneSettingsDlg::colorBarSizeCB( CallBacker* )
+void uiVSGScenePropertyDlg::colorBarSizeCB( CallBacker* )
 {
     viewer_.setColorBarSize( colorbarwidthfld_->getIntValue(),
 			     colorbarheightfld_->getIntValue() );
 }
 
 
-void uiVSGSceneSettingsDlg::setColorBarSizeLimits()
+void uiVSGScenePropertyDlg::setColorBarSizeLimits()
 {
     const int pos = colorbarposfld_->getIntValue();
     const bool horizontal = pos==ODVsg::SceneColTab::Top ||
@@ -237,7 +237,7 @@ void uiVSGSceneSettingsDlg::setColorBarSizeLimits()
 }
 
 
-void uiVSGSceneSettingsDlg::updateSensitivity()
+void uiVSGScenePropertyDlg::updateSensitivity()
 {
     axesstylefld_->setSensitive( axesfld_->isChecked() );
     const bool showwheels = wheelmodefld_->getIntValue() !=
@@ -251,7 +251,7 @@ void uiVSGSceneSettingsDlg::updateSensitivity()
 }
 
 
-bool uiVSGSceneSettingsDlg::rejectOK( CallBacker* )
+bool uiVSGScenePropertyDlg::rejectOK( CallBacker* )
 {
     viewer_.setBackgroundColor( hadbgcolor_ );
     viewer_.setBackgroundGradient( hadgradient_ );
@@ -265,4 +265,18 @@ bool uiVSGSceneSettingsDlg::rejectOK( CallBacker* )
     viewer_.setColorBarSize( hadcolorbarwidth_, hadcolorbarheight_ );
     viewer_.showColorBar( hadcolorbar_ );
     return true;
+}
+
+
+mExternC(uiVSG) void showVSGScenePropertyDlg( uiParent*, ui3DViewerBase* );
+
+mExternC(uiVSG) void showVSGScenePropertyDlg( uiParent* parent,
+					      ui3DViewerBase* viewer )
+{
+    mDynamicCastGet(uiVSGViewer*,vsgviewer,viewer)
+    if ( !vsgviewer )
+	return;
+
+    uiVSGScenePropertyDlg dlg( parent, *vsgviewer );
+    dlg.go();
 }

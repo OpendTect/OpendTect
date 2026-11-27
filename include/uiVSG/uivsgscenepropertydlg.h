@@ -20,18 +20,18 @@ class uiGenInput;
 class uiSpinBox;
 class uiVSGViewer;
 
-/*!\brief The settings of the scene of the VSG viewer: the background and
+/*!\brief Scene properties of the VSG viewer: the background and
   annotation colors, the axes, the thumbwheels and the color bar.
 
   A change is applied to the viewer at once. Cancel puts back what was set
   when the dialog was opened.
 */
 
-mExpClass(uiVSG) uiVSGSceneSettingsDlg : public uiDialog
-{ mODTextTranslationClass(uiVSGSceneSettingsDlg);
+mExpClass(uiVSG) uiVSGScenePropertyDlg : public uiDialog
+{ mODTextTranslationClass(uiVSGScenePropertyDlg);
 public:
-			uiVSGSceneSettingsDlg(uiParent*,uiVSGViewer&);
-			~uiVSGSceneSettingsDlg();
+			uiVSGScenePropertyDlg(uiParent*,uiVSGViewer&);
+			~uiVSGScenePropertyDlg();
 
 private:
 

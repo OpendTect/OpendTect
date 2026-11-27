@@ -13,7 +13,7 @@ set( OD_MODULE_SOURCES
 	uivsgviewer.cc
 	uivsgcontext.cc
 	uivsgwindowhandler.cc
-	uivsgscenesettingsdlg.cc
+	uivsgscenepropertydlg.cc
 	uivsgscreenshotdlg.cc
 	inituivsg.cc
 	uivsgwindow.cc
