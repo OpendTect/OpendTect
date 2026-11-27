@@ -64,6 +64,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 #include "externalattrib.h"
 #include "file.h"
+#include "bufstringset.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
@@ -188,6 +189,18 @@ int uiODApplMgr::editCurrentSurvey( uiParent* p )
 	p = uiMain::instance().topLevel();
 
     uiSurveyInfoEditor dlg( p, eSI(), false, true );
+    BufferStringSet otherholders;
+    const BufferString surveydir = IOM().rootDir().fullPath();
+    IOM().getOtherSurveyHolders( surveydir.buf(), otherholders );
+    if ( !otherholders.isEmpty() )
+    {
+	dlg.setReadOnly();
+	dlg.setTitleText(
+	    tr("The survey is currently open in another OpendTect "
+	       "session:\n%1\n\nSurvey parameters cannot be changed.")
+		.arg(otherholders.cat("\n")) );
+    }
+
     return dlg.go();
 }
 

@@ -11,10 +11,10 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "databuf.h"
-#include "dirlist.h"
-#include "executor.h"
 #include "file.h"
-#include "od_iostream.h"
+#include "hiddenparam.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "ptrman.h"
 #include "separstr.h"
 #include "task.h"
@@ -33,8 +33,6 @@ ________________________________________________________________________
 # include "zlib.h"
 #endif
 
-#include <iostream>
-#include <fstream>
 #include <math.h>
 
 
@@ -722,15 +720,20 @@ void ZipFileInfo::setDosTimeDateModified( od_uint16 dosnrdays,
 }
 
 
+static HiddenParam<ZipHandler,BufferStringSet*> hpexcludefnms_( nullptr );
+
 // ZipHandler
 
 ZipHandler::ZipHandler()
 {
+    hpexcludefnms_.setParam( this, nullptr );
 }
 
 
 ZipHandler::~ZipHandler()
 {
+    hpexcludefnms_.removeAndDeleteParam( this );
+
     if ( istrm_ )
 	{ pErrMsg( "istrm_ still open" ); }
     if ( ostrm_ )
@@ -889,11 +892,34 @@ bool ZipHandler::initAppend( const char* fnm, const char* basepath,
 bool ZipHandler::getFileList( const char* src,
 			      BufferStringSet& filenames )
 {
+    const int firstidx = filenames.size();
     File::makeRecursiveFileList( src, filenames );
+
+    const BufferStringSet* excludefnms = hpexcludefnms_.getParam( this );
+    if ( excludefnms && !excludefnms->isEmpty() )
+    {
+	for ( int idx=filenames.size()-1; idx>=firstidx; idx-- )
+	{
+	    const FilePath fp( filenames.get(idx) );
+	    if ( excludefnms->isPresent(fp.fileName()) )
+		filenames.removeSingle( idx );
+	}
+    }
+
     for( int idx=0; idx<filenames.size(); idx++ )
 	totalsize_ += File::getFileSize( filenames.get(idx), false );
 
     return true;
+}
+
+
+void ZipHandler::setExcludeFileNames( const BufferStringSet& fnms )
+{
+    BufferStringSet* excludefnms = hpexcludefnms_.getParam( this );
+    if ( excludefnms )
+	*excludefnms = fnms;
+    else
+	hpexcludefnms_.setParam( this, new BufferStringSet(fnms) );
 }
 
 

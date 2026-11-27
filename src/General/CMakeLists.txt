@@ -56,6 +56,7 @@ set( OD_MODULE_SOURCES
 	iodirentry.cc
 	iodirtablemodel.cc
 	ioman.cc
+	surveylock.cc
 	ioobj.cc
 	iostrm.cc
 	keyboardevent.cc
@@ -127,6 +128,7 @@ list( APPEND OD_TEST_PROGS
 )
 set( OD_NIGHTLY_TEST_PROGS
 	surveychanger.cc
+	surveylock.cc
 	zip.cc
 )
 

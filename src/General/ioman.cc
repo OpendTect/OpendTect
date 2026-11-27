@@ -33,7 +33,19 @@ ________________________________________________________________________
 #include "transl.h"
 #include "uistrings.h"
 
+#include <cstdio>
+
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+
+namespace SurveyLockImpl
+{
+    bool	registerInstance(const char* surveydir);
+    bool	unregisterInstance(const char* surveydir=nullptr);
+    bool	hasOtherLiveHolders(const char* surveydir);
+    void	getOtherLiveHolders(const char* surveydir,BufferStringSet&);
+} // namespace SurveyLockImpl
+
+static bool surveylockregistered_ = false;
 
 using voidFromVoidFn = void(*)(void);
 static voidFromVoidFn geom2dinitfn_ = nullptr;
@@ -170,6 +182,7 @@ IOMan::IOMan( const FilePath& rootdir )
     , curlvl_(-1)
     , lock_(false)
 {
+    surveylockregistered_ = false;
     SetCurBaseDataDir( rootdir.pathOnly().buf() );
     SurveyInfo::deleteInstance();
     SurveyInfo::setSurveyName( rootdir.baseName().buf() );
@@ -292,6 +305,10 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
 		"did you forgot to call ensureLoaded(Geometry)?");
     }
 
+    if ( state_ == Good &&
+	 SurveyLockImpl::registerInstance(rootdirnm.str()) )
+	surveylockregistered_ = true;
+
     return uirv;
 }
 
@@ -316,6 +333,9 @@ bool IOMan::close( bool dotrigger )
 
     if ( dotrigger && !isBad() )
 	surveyToBeChanged.trigger();
+
+    if ( SurveyLockImpl::unregisterInstance() )
+	surveylockregistered_ = false;
 
     TranslatorGroup::clearSelHists();
 
@@ -354,8 +374,34 @@ uiRetVal IOMan::reInit( SurveyInfo* nwsi )
 
 IOMan::~IOMan()
 {
+    if ( surveylockregistered_ )
+	fprintf( stderr, "Survey lock was still registered at shutdown\n" );
+
+    surveylockregistered_ = false;
     delete dirptr_;
     delete prevrootdir_;
+}
+
+
+void IOMan::applClosing()
+{
+    if ( SurveyLockImpl::unregisterInstance() )
+	surveylockregistered_ = false;
+
+    applicationClosing.trigger();
+}
+
+
+bool IOMan::hasOtherSurveyHolders( const char* surveydir ) const
+{
+    return SurveyLockImpl::hasOtherLiveHolders( surveydir );
+}
+
+
+void IOMan::getOtherSurveyHolders( const char* surveydir,
+				   BufferStringSet& infos ) const
+{
+    SurveyLockImpl::getOtherLiveHolders( surveydir, infos );
 }
 
 
@@ -541,7 +587,10 @@ uiRetVal IOMan::setRootDir( const FilePath& dirfp, bool ischecked )
 	return tr( "Cannot set IOM Root Dir with empty path" );
 
     uiRetVal uirv;
-    if ( dirnm == rootdir_.fullPath() )
+    // close() drops the lock but keeps rootdir_. A later open of that same
+    // survey must run init() again so the lock is registered.
+    if ( state_ == Good && surveylockregistered_ &&
+	 dirnm == rootdir_.fullPath() )
 	return uirv;
 
     if ( !ischecked )

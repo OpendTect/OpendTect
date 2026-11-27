@@ -180,6 +180,8 @@ private:
 					{ return cumulativefilecounts_.last(); }
     int				getCumulativeFileCount(int) const;
     void			setCompLevel(CompLevel);
+    void			setExcludeFileNames(const BufferStringSet&);
+				// Plain file names, no folder part
 
     od_int64			getTotalSize()const  { return totalsize_; }
     od_int64			getNrDoneSize()const  { return nrdonesize_; }

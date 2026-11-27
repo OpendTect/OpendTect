@@ -11,10 +11,9 @@ ________________________________________________________________________
 
 #include "commandlineparser.h"
 #include "coordsystem.h"
-#include "dbman.h"
 #include "file.h"
 #include "filepath.h"
-#include "iodir.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "jsonkeystrs.h"
 #include "keystrs.h"
@@ -26,6 +25,11 @@ ________________________________________________________________________
 
 
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
+
+namespace SurveyLockImpl
+{
+    void	getLockFileNames(BufferStringSet&);
+} // namespace SurveyLockImpl
 
 SurveyCreator::SurveyCreator( const char* survnm, const char* dr,
 			      bool ismanaged )
@@ -198,6 +202,12 @@ uiRetVal SurveyCreator::deactivate()
 }
 
 
+void SurveyCreator::getLockFileNames( BufferStringSet& fnms )
+{
+    SurveyLockImpl::getLockFileNames( fnms );
+}
+
+
 uiRetVal SurveyCreator::save( TaskRunner* trun )
 {
     if ( !surveyloc_ )
@@ -234,8 +244,11 @@ uiRetVal SurveyCreator::save( TaskRunner* trun )
 
     uiString errmsg;
     const BufferString surveydirnm( surveyloc_->fullPath() );
+    BufferStringSet excludefnms;
+    getLockFileNames( excludefnms );
     if ( !ZipUtils::makeZip(surveydirnm.buf(),nullptr,
-			    targetzipfnm.buf(),errmsg,trun) )
+			    targetzipfnm.buf(),errmsg,trun,ZipHandler::Normal,
+			    &excludefnms) )
     {
 	lasterrs_.set( errmsg );
 	if ( File::exists(backupfile.buf()) &&

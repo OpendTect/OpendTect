@@ -24,6 +24,9 @@ ________________________________________________________________________
   archive, to determine the output file location.
   basepath may be set to null, in which case it will be determined by
   base filepath of the input/output archive filename.
+  The overloads with excludefnms skip files whose name has no folder part
+  and is in that set, at any depth. Pass null to exclude nothing. Those
+  overloads are separate entry points so the original makeZip symbols stay.
 */
 
 mExpClass(General) ZipUtils
@@ -46,6 +49,20 @@ public:
 					TaskRunner* =nullptr,
 					ZipHandler::CompLevel =
 					ZipHandler::Normal);
+    static bool			makeZip(const char* fileordirinp,
+					const char* basepath,
+					const char* zipfilenm,
+					uiString& errmsg,
+					TaskRunner*,
+					ZipHandler::CompLevel,
+					const BufferStringSet* excludefnms);
+    static bool			makeZip(const BufferStringSet& fullsrcfnms,
+					const char* basepath,
+					const char* zipfilenm,
+					uiString& errmsg,
+					TaskRunner*,
+					ZipHandler::CompLevel,
+					const BufferStringSet* excludefnms);
     static bool			appendToArchive(const char* fileordirinp,
 						const char* basepath,
 						const char* zipfilenm,

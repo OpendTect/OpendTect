@@ -120,6 +120,35 @@ static bool pathsAreEqual( const char* p1, const char* p2 )
 }
 
 
+static bool checkLockFilesNotZipped( const SurveyCreator& surv )
+{
+    BufferStringSet lockfnms;
+    SurveyCreator::getLockFileNames( lockfnms );
+    const FilePath lockfp( surv.getTempBaseDir(), surv.getSurveyDir(),
+			   lockfnms.first()->buf() );
+    mRunStandardTest( File::exists(lockfp.fullPath()),
+		      "The mounted survey has a lock file" );
+
+    BufferStringSet entries;
+    uiString err;
+    mRunStandardTestWithError(
+		ZipUtils::makeFileList(surv.getZipArchiveLocation(),entries,
+				       err),
+		"List the saved survey zip", toString(err) );
+
+    BufferString zipped;
+    for ( const auto* entry : entries )
+    {
+	if ( lockfnms.isPresent(FilePath(entry->buf()).fileName()) )
+	    zipped.add( *entry ).add( " " );
+    }
+
+    mRunStandardTestWithError( zipped.isEmpty(),
+			       "No lock files in the survey zip", zipped );
+    return true;
+}
+
+
 bool testSurvey( SurveyCreator& surv )
 {
     mRunStandardTest( surv.isOK(), "Constructed Survey" );
@@ -133,6 +162,8 @@ bool testSurvey( SurveyCreator& surv )
 
     ret = surv.save();
     mRunStandardTestWithError( ret.isOK(), "Save", ret.getText() );
+    if ( !checkLockFilesNotZipped(surv) )
+	return false;
 
     ret = surv.unmount( false );
     mRunStandardTestWithError( ret.isOK() && !surv.isMounted(), "Unmount",

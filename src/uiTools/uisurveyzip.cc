@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "surveyfile.h"
 #include "survinfo.h"
 #include "ziparchiveinfo.h"
 #include "ziputils.h"
@@ -142,7 +143,10 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     }
 
     uiTaskRunner taskrunner( par, false ); uiString emsg;
-    if ( !ZipUtils::makeZip(inpdir,nullptr,zipfnm,emsg,&taskrunner) )
+    BufferStringSet excludefnms;
+    SurveyCreator::getLockFileNames( excludefnms );
+    if ( !ZipUtils::makeZip(inpdir,nullptr,zipfnm,emsg,&taskrunner,
+			    ZipHandler::Normal,&excludefnms) )
     {
 	uiStringSet detailedmsg;
 	detailedmsg += uiStrings::phrCannotZip( uiStrings::sSurvey() );

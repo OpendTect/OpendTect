@@ -43,6 +43,7 @@ public:
 
     bool		dirNameChanged() const;
     const char*		dirName() const;
+    void		setReadOnly();
     void		setNameandPathSensitive(bool, bool);
     IOPar*		getImportPars();
     uiSurvInfoProvider* getSIP();
