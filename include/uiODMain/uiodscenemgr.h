@@ -53,13 +53,11 @@ public:
     int				nrScenes()	{ return scenes_.size(); }
     SceneID			addScene(bool maximized,
 					 ZAxisTransform* =nullptr,
-					 const uiString& nm=uiString::empty());
+					 const uiString& nm=uiString::empty(),
+					 bool isvsg=false);
+    SceneID			addScene(bool maximized,bool isvsg);
 
     SceneID			addDefaultScene();
-
-    SceneID			addVSGScene(bool maximized,
-					const uiString& nm=uiString::empty());
-				/*!<Creates scene, window, viewer and tree */
 
     void			setSceneName(const SceneID&,const uiString&);
     uiString			getSceneName(const SceneID&) const;
@@ -265,7 +263,7 @@ protected:
     };
 
     ObjectSet<SceneBundle>	scenes_;
-    SceneBundle&		mkNewScene(bool vsg=false);
+    SceneBundle&		mkNewScene(bool isvsg=false);
     void			removeScene(SceneBundle&);
     void			removeSceneCB(CallBacker*);
     void			initTree(SceneBundle&,int);

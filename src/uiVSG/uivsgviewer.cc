@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uivsgcontext.h"
 #include "vsggeocompiler.h"
 
+#include "iopar.h"
 #include "settings.h"
 
 
@@ -723,10 +724,22 @@ SceneID uiVSGViewer::sceneID() const
 }
 
 
-void uiVSGViewer::setScene( ODVsg::Scene* scene )
+void uiVSGViewer::setScene( visBase::Scene* scene )
 {
-    if ( !vsgwindow_ )
-	scene_ = scene;
+    if ( vsgwindow_ )
+    {
+	pErrMsg( "The scene can only be set before the viewer is shown" );
+	return;
+    }
+
+    auto* vsgscene = dCast(ODVsg::Scene*,scene);
+    if ( scene && !vsgscene )
+    {
+	pErrMsg( "A VSG viewer needs a VSG scene" );
+	return;
+    }
+
+    scene_ = vsgscene;
 }
 
 
@@ -751,6 +764,38 @@ bool uiVSGViewer::isViewMode() const
 
 void uiVSGViewer::viewPlane( PlaneType )
 {}
+
+
+visBase::PolygonSelection* uiVSGViewer::getPolygonSelector()
+{ return nullptr; }
+
+
+visBase::SceneColTab* uiVSGViewer::getSceneColTab()
+{ return nullptr; }
+
+
+bool uiVSGViewer::setStereoType( OD::StereoType )
+{ return true; }
+
+
+OD::StereoType uiVSGViewer::getStereoType() const
+{ return OD::StereoType::None; }
+
+
+void uiVSGViewer::setStereoOffset( float )
+{}
+
+
+float uiVSGViewer::getStereoOffset() const
+{ return 0.f; }
+
+
+void uiVSGViewer::fillPar( IOPar& ) const
+{}
+
+
+bool uiVSGViewer::usePar( const IOPar& )
+{ return true; }
 
 
 void uiVSGViewer::align()
@@ -1697,13 +1742,11 @@ mExternC(uiVSG) visSurvey::Scene* createVSGScene()
 
 
 mExternC(uiVSG) ui3DViewerBase* createVSGViewer( uiParent* parent,
-					visSurvey::Scene*,const char* );
+						 const char* title );
 
 mExternC(uiVSG) ui3DViewerBase* createVSGViewer( uiParent* parent,
-    visSurvey::Scene* scene, const char* title )
+						 const char* title )
 {
     const char* nm = ( title && *title ) ? title : "VSG Viewer";
-    auto* viewer = new uiVSGViewer( parent, nm );
-    viewer->setScene( dCast(ODVsg::Scene*, scene) );
-    return viewer;
+    return new uiVSGViewer( parent, nm );
 }

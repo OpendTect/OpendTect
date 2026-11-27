@@ -53,8 +53,6 @@ mDefineNameSpaceEnumUtils(OD,WheelMode,"WheelMode")
 ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     : ui3DViewerBase(parnt,nm,mkBody(parnt,direct,nm))
     , destroyed(this)
-    , viewmodechanged(this)
-    , pageupdown(this)
     , vmcb(0)
 {
     PtrMan<IOPar> homepospar = SI().pars().subselect( sKeyHomePos() );
