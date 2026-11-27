@@ -25,7 +25,9 @@ ________________________________________________________________________________
 
 #include "ioobj.h"
 #include "latlong.h"
+#include "math2.h"
 #include "position.h"
+#include "timedepthmodel.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -599,6 +601,131 @@ void odWell::putMarkers( const BufferStringSet& markernms, const float* dah,
 }
 
 
+void odWell::putTrack( const float* dah, const float* tvdss,
+		       const double* x, const double* y, uint32_t sz )
+{
+    errmsg_.setEmpty();
+    survey_.activate();
+    if ( !wd_ )
+    {
+	errmsg_ = "odWell::putTrack - invalid welldata object.";
+	return;
+    }
+
+    if ( sz < 2 )
+    {
+	errmsg_ = "odWell::putTrack - a track needs at least two points.";
+	return;
+    }
+
+    const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
+    const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
+    Well::Track track;
+    for ( uint32_t idx=0; idx<sz; idx++ )
+    {
+	const float md = getConvertedValue( dah[idx], zduom, zsuom );
+	const float z = getConvertedValue( tvdss[idx], zduom, zsuom );
+	if ( mIsUdf(md) || mIsUdf(z) || mIsUdf(x[idx]) || mIsUdf(y[idx]) ||
+	     !Math::IsNormalNumber(md) || !Math::IsNormalNumber(z) ||
+	     !Math::IsNormalNumber(x[idx]) || !Math::IsNormalNumber(y[idx]) )
+	{
+	    errmsg_ = "odWell::putTrack - undefined value in the track.";
+	    return;
+	}
+
+	if ( idx>0 && md <= track.dah(idx-1) )
+	{
+	    errmsg_ = "odWell::putTrack - dah must increase.";
+	    return;
+	}
+
+	track.addPoint( Coord3(x[idx],y[idx],z), md );
+    }
+
+    if ( !Well::MGR().get(wd_->multiID(),Well::LoadReqs(Well::D2T)) )
+    {
+	errmsg_ = "odWell::putTrack - cannot read the time-depth model.";
+	return;
+    }
+
+    Well::D2TModel* d2t = wd_->d2TModel();
+    TimeDepthModel dtmodel;
+    if ( d2t && !d2t->getTimeDepthModel(*wd_,dtmodel) )
+    {
+	errmsg_ = "odWell::putTrack - the time-depth model is invalid.";
+	return;
+    }
+
+    const Well::Track origtrack = wd_->track();
+    const Coord origpos = wd_->info().surfacecoord_;
+    const LatLong origllpos = wd_->info().surfacelatlong_;
+    const float origreplvel = wd_->info().replvel_;
+    PtrMan<Well::D2TModel> origd2t = d2t ? new Well::D2TModel( *d2t )
+					 : nullptr;
+    wd_->track() = track;
+#define mRestore() \
+    wd_->track() = origtrack; \
+    wd_->info().surfacecoord_ = origpos; \
+    wd_->info().surfacelatlong_ = origllpos; \
+    wd_->info().replvel_ = origreplvel; \
+    if ( d2t ) \
+	*d2t = *origd2t;
+
+    if ( d2t )
+    {
+	// The model as uiSetD2TFromOtherWell::acceptOK takes it, plus the
+	// time at the TVDSS of each point of the new track
+	const int mdlsz = dtmodel.size();
+	TypeSet<double> depths, times;
+	for ( int idx=0; idx<mdlsz; idx++ )
+	{
+	    depths += getConvertedValue( dtmodel.getDepth(idx), zduom, zsuom );
+	    times += dtmodel.getTime( idx );
+	}
+
+	for ( int idx=0; idx<track.size(); idx++ )
+	{
+	    const float z = sCast(float,track.pos(idx).z_);
+	    depths += z;
+	    times += dtmodel.getTime( getConvertedValue(z,zsuom,zduom) );
+	}
+
+	uiString msg;
+	if ( !d2t->ensureValid(*wd_,msg,&depths,&times) ||
+	     !d2t->ensureValid(*wd_,msg) )
+	{
+	    mRestore()
+	    errmsg_ = "odWell::putTrack - cannot project the time-depth "
+		      "model onto the new track: ";
+	    errmsg_.add( msg.getFullString() );
+	    return;
+	}
+    }
+
+    Well::Writer wtr( wd_->multiID(), *wd_ );
+    if ( !wtr.putTrack() )
+    {
+	mRestore()
+	errmsg_ = "odWell::putTrack - saving track failed";
+	return;
+    }
+
+    if ( d2t && !wtr.putD2T() )
+    {
+	mRestore()
+	wtr.putTrack();
+	wtr.putD2T();
+	errmsg_ = "odWell::putTrack - saving the time-depth model failed";
+	return;
+    }
+
+#undef mRestore
+    wd_->trackchanged.trigger();
+    if ( d2t )
+	wd_->d2tchanged.trigger();
+}
+
+
 void odWell::getInfo( OD::JSON::Object& jsobj ) const
 {
     errmsg_.setEmpty();
@@ -885,6 +1012,17 @@ bool well_deletemarkers( hWell self, const hStringSet markernms )
 	return true;
 
     return Well::MGR().deleteMarkers( p->wd()->multiID(), *nms );
+}
+
+
+void well_puttrack( hWell self, const float* dah, const float* tvdss,
+		    const double* x, const double* y, uint32_t sz )
+{
+    auto* p = static_cast<odWell*>(self);
+    if ( !p || !dah || !tvdss || !x || !y )
+	return;
+
+    p->putTrack( dah, tvdss, x, y, sz );
 }
 
 
