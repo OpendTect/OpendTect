@@ -104,7 +104,12 @@ static const SharedLibAccess* vsgLibAccess()
 
 bool isVSGAvailable()
 {
-    return vsgLibAccess();
+#ifdef HAS_VSG
+    return true;
+#else
+    return false;
+#endif
+   // return vsgLibAccess();
 }
 
 
