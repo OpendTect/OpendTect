@@ -7,6 +7,10 @@
 
 set( OD_MODULE_DEPS uiOSG uiMPE )
 set( OD_FOLDER "Visualization (3D)" )
+if ( TARGET uiVSG )
+    list( APPEND OD_MODULE_DEPS uiVSG )
+    list( APPEND OD_MODULE_COMPILE_DEFINITIONS HAS_VSG )
+endif()
 
 set( OD_MODULE_SOURCES
 	inituivis.cc

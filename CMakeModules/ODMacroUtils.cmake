@@ -21,6 +21,7 @@
 #					  value should be a valid Qt component like
 #					  Core, Sql, Network, Gui
 # OD_USEOSG				: Dependency on OSG is enabled if set.
+# OD_USEVSG				: Dependency on VSG is enabled if set.
 # OD_USEZLIB				: Dependency on ZLib is enabled if set.
 # OD_LINKOPENSSL			: Dependency on OpenSSL::SSL is enabled if set.
 # OD_LINKCRYPTO				: Dependency on OpenSSL::Crypto is enabled if set.
@@ -78,6 +79,7 @@ list( APPEND SETUPNMS
        USEQT
        INSTQT
        USEOSG
+       USEVSG
        USEZLIB
        LINKOPENSSL
        LINKCRYPTO
@@ -183,6 +185,10 @@ endif()
 
 if( OD_USEOSG )
     OD_SETUP_OSG()
+endif()
+
+if( OD_USEVSG )
+    OD_SETUP_VSG()
 endif()
 
 #Add Qt-stuff

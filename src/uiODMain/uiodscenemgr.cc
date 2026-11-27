@@ -1211,13 +1211,6 @@ void uiODSceneMgr::initTree( SceneBundle& scn, int vwridx )
 		tifs_->getFactory(fidx)->create(), true );
     }
 
-    if ( scn.isVSG() )
-    {
-	// The OSG items are only shown: they would add OSG objects
-	scn.itemmanager_->disabRightClick( true );
-	scn.itemmanager_->disabAnyClick( true );
-    }
-
     scn.lv_->display( true );
     appl_.addDockWindow( *scn.dw_, uiMainWin::Left );
     tabifyTree( scn );

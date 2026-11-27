@@ -5,7 +5,7 @@
 #________________________________________________________________________
 #
 
-macro( OD_FIND_VSG )
+macro( OD_ADD_VSG )
 
     if ( NOT OD_NO_VSG )
 	if ( NOT VSG_FOUND )
@@ -49,13 +49,14 @@ macro( OD_FIND_VSG )
 	endif()
     endif()
 
-endmacro( OD_FIND_VSG )
+endmacro( OD_ADD_VSG )
 
-macro( OD_USE_VSG )
+macro( OD_SETUP_VSG )
 
     if ( NOT OD_NO_VSG )
 	if ( TARGET Vulkan::Vulkan AND TARGET vsg::vsg )
 	    list( APPEND OD_MODULE_EXTERNAL_LIBS vsg::vsg )
+		list( APPEND OD_MODULE_COMPILE_DEFINITIONS "HAS_VSG" )
 	else()
 	    set( VSG_ROOT "" CACHE PATH "VulkanSceneGraph (VSG) Location" )
 	    if ( NOT TARGET Vulkan::Vulkan )
@@ -66,7 +67,7 @@ macro( OD_USE_VSG )
 	endif()
     endif()
 
-endmacro( OD_USE_VSG )
+endmacro( OD_SETUP_VSG )
 
 macro( OD_FIND_VSGXCHANGE )
 
