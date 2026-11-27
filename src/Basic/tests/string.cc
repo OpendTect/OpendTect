@@ -528,6 +528,35 @@ static bool testEmptyStringComparison()
 }
 
 
+static bool testUtf8Matching()
+{
+    const StringView name( "J\xC3\x9CRGEN_\xE4\xBD\xA0\xE5\xA5\xBD.txt" );
+    mRunStandardTest( name.matches("j\xC3\xBCrgen*",OD::CaseInsensitive),
+		      "UTF-8 case-insensitive wildcard match" );
+    mRunStandardTest( !name.matches("j\xC3\xBCrgen*",OD::CaseSensitive),
+		      "UTF-8 case-sensitive wildcard no match" );
+    mRunStandardTest( name.matches("*\xE4\xBD\xA0\xE5\xA5\xBD.TXT",
+				   OD::CaseInsensitive),
+		      "UTF-8 case-insensitive match after a star" );
+    mRunStandardTest( name.matches("J?RGEN_??.txt"),
+		      "? matches one UTF-8 character" );
+    mRunStandardTest( !name.matches("J?RGEN_???.txt"),
+		      "? does not match part of a UTF-8 character" );
+    mRunStandardTest( name.matches("J*?\xE5\xA5\xBD.txt"),
+		      "? after a star matches one UTF-8 character" );
+    mRunStandardTest( name.matches("j?rgen*",OD::CaseInsensitive),
+		      "? in a case-insensitive UTF-8 match" );
+
+    const StringView upper( "\xC3\x9C" );
+    mRunStandardTest( upper.getLevenshteinDist("\xC3\xBC",false) == 0,
+		      "UTF-8 case-insensitive Levenshtein distance" );
+    mRunStandardTest( upper.getLevenshteinDist("\xC3\xBC",true) > 0,
+		      "UTF-8 case-sensitive Levenshtein distance" );
+
+    return true;
+}
+
+
 static bool testUtf8Names()
 {
     const char* const capital = "\xC3\x98y";
@@ -844,6 +873,7 @@ int mTestMainFnName( int argc, char** argv )
       || !testEmptyStringComparison()
       || !testStringContentType()
       || !testUtf8Names()
+      || !testUtf8Matching()
       || !testGetFromString()
       || !testStaticString()
       || !testStringSetIOPar()

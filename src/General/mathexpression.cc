@@ -1056,6 +1056,13 @@ bool Math::ExpressionParser::findInequality( char* str, int len,
 }
 
 
+static bool isVarNameLetter( char ch )
+{
+    const unsigned char uch = sCast(unsigned char,ch);
+    return uch > 127 || isalpha( uch );
+}
+
+
 bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
 					      Math::Expression*& ret ) const
 {
@@ -1075,7 +1082,7 @@ bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
 		|| prevch == '^' || prevch == '[' )
 		continue;
 	    if ( idx > 1 && (prevch == 'e' || prevch == 'E')
-		&& !iswalpha(str[idx-2]) )
+		&& !isVarNameLetter(str[idx-2]) )
 		continue;
 
 	    PtrMan<Math::Expression> inp1
@@ -1306,7 +1313,8 @@ bool Math::ExpressionParser::findVariable( char* str, int len,
 
 	if ( distfromopeningbracket < 0 )
 	{
-	    isok = idx == 0 ? iswalpha( str[idx] ) : iswalnum( str[idx] );
+	    isok = isVarNameLetter( str[idx] ) ||
+		(idx > 0 && isdigit(sCast(unsigned char,str[idx])));
 	    if ( !isok && str[idx] == '_' )
 		isok = true;
 	    if ( !isok )

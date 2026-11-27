@@ -938,8 +938,23 @@ bool OS::CommandLauncher::doExecute( const MachineCommand& mc,
 		argsstr.addSpace();
 	    argsstr.add( arg );
 	}
-	const HINSTANCE res = ShellExecuteA( NULL, "runas", mc.program(),
-	    argsstr, pars.workingdir_, SW_SHOW );
+	LPCTSTR tprog = nullptr;
+	LPCTSTR targs = nullptr;
+	LPCTSTR tdir = nullptr;
+#ifdef UNICODE
+	const std::wstring wprog = FilePath::getWLongPath( mc.program() );
+	const std::wstring wargs = argsstr.toStdWString();
+	const std::wstring wdir = FilePath::getWLongPath( pars.workingdir_ );
+	tprog = wprog.c_str();
+	targs = wargs.c_str();
+	tdir = wdir.c_str();
+#else
+	tprog = mc.program();
+	targs = argsstr.buf();
+	tdir = pars.workingdir_.buf();
+#endif
+	const HINSTANCE res = ShellExecute( nullptr, TEXT("runas"), tprog,
+					    targs, tdir, SW_SHOW );
 	return static_cast<int>(reinterpret_cast<uintptr_t>(res)) >
 							    HINSTANCE_ERROR;
     }

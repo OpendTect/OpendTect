@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "testprog.h"
 
 #include "datapack.h"
+#include "envvars.h"
 #include "timefun.h"
 #include "zdomain.h"
 
@@ -144,6 +145,34 @@ static bool testTimeConversion()
 }
 
 
+static bool testUnicodeEnvVars()
+{
+    const char* envnm = "OD_TEST_UNICODE_ENVVAR";
+    const char* utf8val = "C:/Users/J\xC3\xBCrgen_\xE4\xBD\xA0\xE5\xA5\xBD";
+    SetEnvVar( envnm, utf8val );
+    mRunStandardTest( StringView(GetOSEnvVar(envnm)) == utf8val,
+		      "UTF-8 environment variable read back" );
+#if defined( __msvc__ ) && defined( UNICODE )
+    const std::wstring wenvnm( L"OD_TEST_UNICODE_ENVVAR" );
+    const std::wstring wval( L"C:/Users/J\u00FCrgen_\u4F60\u597D" );
+    std::wstring wres( 64, L'\0' );
+    size_t len = 0;
+    _wgetenv_s( &len, wres.data(), wres.size(), wenvnm.c_str() );
+    wres.resize( len>0 ? len-1 : 0 );
+    mRunStandardTest( wres == wval,
+		      "UTF-8 environment variable set as Unicode" );
+
+    _wputenv_s( wenvnm.c_str(), wval.c_str() );
+    mRunStandardTest( StringView(GetOSEnvVar(envnm)) == utf8val,
+		      "Unicode environment variable read as UTF-8" );
+#endif
+    UnsetOSEnvVar( envnm );
+    mRunStandardTest( !GetOSEnvVar(envnm), "Environment variable removed" );
+
+    return true;
+}
+
+
 #define mFuncInMacro( dummy ) BufferString( __func__ )
 
 
@@ -268,6 +297,7 @@ int mTestMainFnName( int argc, char** argv )
 	|| !testFuncName()
 	|| (__iswin__ && !test64BitDetection())
 	|| !testTimeConversion()
+	|| !testUnicodeEnvVars()
 	|| !testZDomain() )
 	return 1;
 
