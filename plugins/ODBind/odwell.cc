@@ -25,6 +25,7 @@ ________________________________________________________________________________
 
 #include "ioobj.h"
 #include "latlong.h"
+#include "math2.h"
 #include "position.h"
 #include "timedepthmodel.h"
 #include "welld2tmodel.h"
@@ -625,8 +626,8 @@ void odWell::putTrack( const float* dah, const float* tvdss,
 	const float md = getConvertedValue( dah[idx], zduom, zsuom );
 	const float z = getConvertedValue( tvdss[idx], zduom, zsuom );
 	if ( mIsUdf(md) || mIsUdf(z) || mIsUdf(x[idx]) || mIsUdf(y[idx]) ||
-	     std::isnan(md) || std::isnan(z) || std::isnan(x[idx]) ||
-	     std::isnan(y[idx]) )
+	     !Math::IsNormalNumber(md) || !Math::IsNormalNumber(z) ||
+	     !Math::IsNormalNumber(x[idx]) || !Math::IsNormalNumber(y[idx]) )
 	{
 	    errmsg_ = "odWell::putTrack - undefined value in the track.";
 	    return;
@@ -657,6 +658,7 @@ void odWell::putTrack( const float* dah, const float* tvdss,
 
     const Well::Track origtrack = wd_->track();
     const Coord origpos = wd_->info().surfacecoord_;
+    const LatLong origllpos = wd_->info().surfacelatlong_;
     const float origreplvel = wd_->info().replvel_;
     PtrMan<Well::D2TModel> origd2t = d2t ? new Well::D2TModel( *d2t )
 					 : nullptr;
@@ -664,6 +666,7 @@ void odWell::putTrack( const float* dah, const float* tvdss,
 #define mRestore() \
     wd_->track() = origtrack; \
     wd_->info().surfacecoord_ = origpos; \
+    wd_->info().surfacelatlong_ = origllpos; \
     wd_->info().replvel_ = origreplvel; \
     if ( d2t ) \
 	*d2t = *origd2t;
@@ -688,7 +691,8 @@ void odWell::putTrack( const float* dah, const float* tvdss,
 	}
 
 	uiString msg;
-	if ( !d2t->ensureValid(*wd_,msg,&depths,&times) )
+	if ( !d2t->ensureValid(*wd_,msg,&depths,&times) ||
+	     !d2t->ensureValid(*wd_,msg) )
 	{
 	    mRestore()
 	    errmsg_ = "odWell::putTrack - cannot project the time-depth "
@@ -696,9 +700,6 @@ void odWell::putTrack( const float* dah, const float* tvdss,
 	    errmsg_.add( msg.getFullString() );
 	    return;
 	}
-
-	d2t->ensureValid( *wd_, msg );
-	wd_->info().replvel_ = origreplvel;
     }
 
     Well::Writer wtr( wd_->multiID(), *wd_ );
@@ -713,6 +714,7 @@ void odWell::putTrack( const float* dah, const float* tvdss,
     {
 	mRestore()
 	wtr.putTrack();
+	wtr.putD2T();
 	errmsg_ = "odWell::putTrack - saving the time-depth model failed";
 	return;
     }

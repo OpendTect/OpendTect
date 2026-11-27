@@ -395,6 +395,12 @@ def test_Well_put_track(survey):
             well.put_track(track['dah'][::-1].copy(), track['tvdss'], track['x'], track['y'])
         with pytest.raises(ValueError):
             well.put_track(track['dah'], track['tvdss'][:4], track['x'], track['y'])
+        for bad in [np.inf, np.nan]:
+            for key in track:
+                badtrack = {k: v.copy() for k, v in track.items()}
+                badtrack[key][2] = bad
+                with pytest.raises(ValueError):
+                    well.put_track(**badtrack)
         np.testing.assert_allclose(well.track()['dah'], track['dah'], rtol=1e-6)
         del well
     finally:
