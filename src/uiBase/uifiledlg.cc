@@ -157,7 +157,7 @@ int uiFileDialog::go()
 	return 1;
     }
 
-    QWidget* qparent = 0;
+    QWidget* qparent = nullptr;
     if ( parnt_ && parnt_->pbody() )
 	qparent = parnt_->pbody()->managewidg();
 
@@ -190,8 +190,10 @@ int uiFileDialog::go()
     fd->setOption( QFileDialog::DontConfirmOverwrite, !confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
+
     if ( selectedfilter_.size() )
 	fd->selectNameFilter( QString(selectedfilter_) );
+
     if ( !defaultextension_.isEmpty() )
 	fd->setDefaultSuffix( QString(defaultextension_.buf()) );
 
@@ -218,13 +220,6 @@ int uiFileDialog::go()
     if ( !selfiles.isEmpty() )
     {
 	const auto file0 = selfiles.first();
-	if ( hasUnicodeCharacters(file0) )
-	{
-	    uiMSG().error( tr("File name has unicode characters.\n"
-			      "OpendTect doesn't support unicode yet.") );
-	    return 0;
-	}
-
 	if ( file0.length() >= File::maxPathLength() )
 	{
 	    uiMSG().error( tr("File path is too long:\n%1\n"
