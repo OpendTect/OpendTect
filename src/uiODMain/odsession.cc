@@ -90,6 +90,7 @@ bool ODSession::operator==( const ODSession& sess ) const
     return vispars_ == sess.vispars_
 	&& empars_ == sess.empars_
 	&& seispars_ == sess.seispars_
+	&& scenepars_ == sess.scenepars_
 	&& attrpars_ == sess.attrpars_		//backward comp 2.4
 	&& attrpars2d_ == sess.attrpars2d_
 	&& attrpars3d_ == sess.attrpars3d_

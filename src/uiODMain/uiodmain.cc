@@ -323,12 +323,26 @@ void uiODMain::setTransientStatusMsg( const uiString& msg )
 {
     sTransientStatusUntil = Time::getMilliSeconds() + 5000;
     statusBar()->message( msg, mTransientStatusFld );
+    transientstatustimer_.start( 5000, true );
 }
 
 
 bool uiODMain::hasTransientStatusMsg() const
 {
     return Time::getMilliSeconds() < sTransientStatusUntil;
+}
+
+
+void uiODMain::transientStatusTimerCB( CallBacker* )
+{
+    const od_int64 remaining = sTransientStatusUntil - Time::getMilliSeconds();
+    if ( remaining > 0 )
+    {
+	transientstatustimer_.start( mCast(int,remaining), true );
+	return;
+    }
+
+    statusBar()->message( uiString::emptyString(), mTransientStatusFld );
 }
 
 
@@ -373,6 +387,13 @@ bool uiODSessionController::offerStartupSession()
 void uiODSessionController::afterStartupSession( bool )
 {}
 
+
+bool uiODSessionController::sessionContentChanged()
+{
+    return ODMainWin() && ODMainWin()->hasSessionChanged();
+}
+
+
 uiODMain::uiODMain( uiMain& a )
     : uiMainWin(nullptr,toUiString("OpendTect Main Window"),5,true)
     , sessionSave(this)
@@ -387,6 +408,7 @@ uiODMain::uiODMain( uiMain& a )
     , memtimer_(*new Timer("Memory display timer"))
     , newsurvinittimer_(*new Timer("New survey init timer"))
     , autoloadsessiontimer_(*new Timer("Auto-load Session"))
+    , transientstatustimer_(*new Timer("Transient status timer"))
 {
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
@@ -397,6 +419,7 @@ uiODMain::uiODMain( uiMain& a )
 
     mAttachCB( IOM().afterSurveyChange, uiODMain::afterSurveyChgCB );
     mAttachCB( sesstimer_.tick, uiODMain::sessTimerCB );
+    mAttachCB( transientstatustimer_.tick, uiODMain::transientStatusTimerCB );
 
     uiString statustt = tr( "System memory: Free/Available" );
     statustt.append( tr("| CPU: Used/Available") );
@@ -420,6 +443,7 @@ uiODMain::~uiODMain()
 {
     detachAllNotifiers();
     memtimer_.stop();
+    transientstatustimer_.stop();
     if ( ODMainWin()==this )
 	manODMainWin( nullptr, true );
 
@@ -428,6 +452,7 @@ uiODMain::~uiODMain()
     delete &memtimer_;
     delete &newsurvinittimer_;
     delete &autoloadsessiontimer_;
+    delete &transientstatustimer_;
 
     delete menumgr_;
     delete scenemgr_;
@@ -496,12 +521,18 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 }
 
 
-static bool hasSceneItems( uiVisPartServer* visserv )
+static int countSceneChildren( uiVisPartServer* visserv, int* nrscenes=nullptr )
 {
+    if ( nrscenes )
+	*nrscenes = 0;
+
+    if ( !visserv )
+	return 0;
+
     TypeSet<SceneID> sceneids;
     visserv->getSceneIds( sceneids );
-    if ( sceneids.isEmpty() )
-	return false;
+    if ( nrscenes )
+	*nrscenes = sceneids.size();
 
     int nrchildren = 0;
     for ( const auto& sceneid : sceneids )
@@ -511,20 +542,43 @@ static bool hasSceneItems( uiVisPartServer* visserv )
 	nrchildren += visids.size();
     }
 
-    return nrchildren>sceneids.size()*3;
+    return nrchildren;
+}
+
+
+static bool hasSceneItems( uiVisPartServer* visserv )
+{
+    int nrscenes = 0;
+    const int nrchildren = countSceneChildren( visserv, &nrscenes );
+    return nrscenes > 0 && nrchildren > nrscenes*3;
 }
 
 
 bool uiODMain::hasSessionChanged()
 {
-    if ( !hasSceneItems(applMgr().visServer()) )
+    // Free exit uses scene-object count only (cheap, stable). Until the
+    // startup baseline exists, treat as unchanged.
+    if ( !sessionbaselined_ )
 	return false;
 
-    ODSession sess;
-    cursession_ = &sess;
-    updateSession();
-    cursession_ = &lastsession_;
-    return !( sess == lastsession_ );
+    return countSceneChildren(applMgr().visServer())
+	!= baselinescenechildren_;
+}
+
+
+void uiODMain::baselineSceneState()
+{
+    baselinescenechildren_ =
+			countSceneChildren( applMgr().visServer() );
+    sessionbaselined_ = true;
+}
+
+
+void uiODMain::clearSessionBaseline()
+{
+    lastsession_.clear();
+    baselinescenechildren_ = 0;
+    sessionbaselined_ = false;
 }
 
 
@@ -540,11 +594,10 @@ bool uiODMain::saveSessionDlg()
     cursession_ = &sess;
     uiString errmsg;
     const bool ok = updateSession() &&
-	ODSessionTranslator::store( sess, ctio->ioobj_, errmsg );
+		    ODSessionTranslator::store( sess, ctio->ioobj_, errmsg );
     if ( ok )
     {
-	lastsession_ = sess;
-	cursession_ = &lastsession_;
+	noteSessionStored( sess );
 	setMemFldStatusMsg( statusBar(), tr("Session saved") );
     }
     else
@@ -586,6 +639,7 @@ void uiODMain::noteSessionStored( const ODSession& sess )
 {
     lastsession_ = sess;
     cursession_ = &lastsession_;
+    baselineSceneState();
 }
 
 
@@ -634,8 +688,6 @@ void uiODMain::restoreSession()
 }
 
 
-
-
 void uiODMain::restoreSession( const IOObj* ioobj )
 {
     ODSession sess;
@@ -649,7 +701,14 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     cursession_ = &sess;
     doRestoreSession();
     cursession_ = &lastsession_;
-    lastsession_.clear();
+    clearSessionBaseline();
+    // Re-baseline so close does not treat the restored Session as dirty,
+    // and Pro lastwritten_ matches the post-restore scene.
+    if ( sessionctl_ )
+	sessionctl_->afterStartupSession( false );
+    else
+	baselineSceneState();
+
     sesstimer_.start( 200, true );
     sceneMgr().setToViewMode( true );
     sceneMgr().updateTrees();
@@ -658,6 +717,9 @@ void uiODMain::restoreSession( const IOObj* ioobj )
 
 bool uiODMain::updateSession()
 {
+    if ( !cursession_ )
+	return false;
+
     cursession_->clear();
     applMgr().EMServer()->fillPar( cursession_->empars() );
     applMgr().seisServer()->fillPar( cursession_->seispars() );
@@ -671,8 +733,8 @@ bool uiODMain::updateSession()
     applMgr().attrServer()->fillPar( cursession_->attrpars(false, true),
 				     false, true );
     sceneMgr().getScenePars( cursession_->scenepars() );
-    if ( applMgr().nlaServer()
-      && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) )
+    if ( applMgr().nlaServer() &&
+	 !applMgr().nlaServer()->fillPar(cursession_->nlapars()) )
 	return false;
 
     applMgr().mpeServer()->fillPar( cursession_->mpepars() );
@@ -739,7 +801,7 @@ void uiODMain::doRestoreSession()
     MouseCursorManager::restoreOverride();
     if ( !restoremsgs_.isEmpty() )
     {
-	uiString basemsg = tr("Errors during session restore");
+	const uiString basemsg = tr("Errors during session restore");
 	uiMSG().errorWithDetails( restoremsgs_, basemsg );
     }
 }
@@ -758,16 +820,19 @@ void uiODMain::autoloadSessionCB( CallBacker* )
     {
 	checkedrestart = true;
 	if ( sessionctl_ && sessionctl_->restoreRestart() )
+	{
+	    sessionctl_->afterStartupSession( false );
 	    return;
+	}
     }
 
     const bool declined = sessionctl_ ? sessionctl_->offerStartupSession()
 				      : false;
     if ( sessionctl_ )
 	sessionctl_->afterStartupSession( declined );
+    else
+	baselineSceneState();
 }
-
-
 
 
 void uiODMain::afterStartupCB( CallBacker* )
@@ -856,22 +921,23 @@ void uiODMain::setProgInfo( const char* info )
 }
 
 
-bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
+bool uiODMain::askStore( bool& askedanything, const uiString& actiontype,
+			  bool asksession )
 {
     if ( !applmgr_->attrServer() )
 	return false;
 
-    if ( !NotSavedPrompter::NSP().doTrigger(uiMainWin::activeWindow(), true,
-								actiontype) )
-		return false;
+    if ( !NotSavedPrompter::NSP().doTrigger(uiMainWin::activeWindow(),true,
+					    actiontype) )
+	return false;
 
-    if ( !NotFinishedPrompter::NFP().doTrigger(uiMainWin::activeWindow(), true,
-								actiontype) )
-	    return false;
+    if ( !NotFinishedPrompter::NFP().doTrigger(uiMainWin::activeWindow(),true,
+					       actiontype) )
+	return false;
 
     bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
-    if ( doask && hasSessionChanged() )
+    if ( asksession && doask && hasSessionChanged() )
     {
 	askedanything = true;
 	const int res =
@@ -915,6 +981,7 @@ void uiODMain::afterSurveyChgCB( CallBacker* )
 {
     updateCaption();
     cursessid_.setUdf();
+    clearSessionBaseline();
     autoloadsessiontimer_.start( 500, true );
 }
 
@@ -996,15 +1063,26 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 
     if ( !closeactivebatch || doconfirm )
     {
-	bool handled = false;
-	bool accept = false;
-	const bool nosession = !restarting_ && cursessid_.isUdf();
-	if ( nosession && sessionctl_ )
-	    handled = sessionctl_->confirmClose( restarting_, accept );
+	bool doasksession = true;
+	Settings::common().getYN( "dTect.Ask store session", doasksession );
+	const bool unsavedsession = doasksession &&
+		( sessionctl_ ? sessionctl_->sessionContentChanged()
+			      : hasSessionChanged() );
 
-	if ( handled )
+	if ( unsavedsession )
 	{
-	    if ( !accept )
+	    // One dialog only: save-or-exit when there is unsaved Session work.
+	    const uiString msg = tr( "Do you want to %1 %2\n"
+				     "without saving your work in a Session?" )
+				    .arg( restarting_ ? "restart" : "close" )
+				    .arg( programname_ );
+	    const int res = uiMSG().askSave( msg, true );
+	    if ( res == 1 )
+	    {
+		if ( !saveSessionDlg() )
+		    return false;
+	    }
+	    else if ( res == -1 )
 		return false;
 	}
 	else if ( !uiMSG().askGoOn(tr("Do you want to %1 %2?")
@@ -1018,8 +1096,10 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
      bool dummy = false;
      if ( withinteraction )
      {
+	 // Session save on close was handled above; only ask other stores.
 	 if ( !askStore(dummy,
-	      uiStrings::phrJoinStrings(actstr,toUiString(programname_))) )
+	      uiStrings::phrJoinStrings(actstr,toUiString(programname_)),
+	      false) )
 	 {
 	     uiMSG().message( restarting_ ? tr("Restart cancelled")
 					  : tr("Closing cancelled") );

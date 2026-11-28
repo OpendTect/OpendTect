@@ -47,8 +47,8 @@ mExpClass(uiODMain) uiODSessionController
 public:
     virtual		~uiODSessionController();
 
-    /*!\return true when the prompt was handled. accept is then whether
-	       closing may continue. */
+    /*! \return true when the prompt was handled. accept is then whether
+		closing may continue. */
     virtual bool	confirmClose(bool restarting,bool& accept);
     virtual void	adjustRestart(bool withinteraction,
 				      bool& keepsession,bool& keeppreload);
@@ -57,9 +57,11 @@ public:
 					  const IOPar& horpar);
     virtual bool	restoreRestart();
     virtual bool	willOfferStartupSession() const;
-    /*!\return true when the user declines the startup Session. */
+    /*! \return true when the user declines the startup Session. */
     virtual bool	offerStartupSession();
     virtual void	afterStartupSession(bool autoloaddeclined);
+    /*! \return true when Session content differs from the last baseline. */
+    virtual bool	sessionContentChanged();
 };
 
 /*!
@@ -97,12 +99,14 @@ public:
     uiString		getProgramName();
 
     bool		askStore(bool& askedanything,
-				 const uiString& actiontype);
+				 const uiString& actiontype,
+				 bool asksession=true);
 			/*!< Asks user if session, picksets or attributesets
-			     need to be stored. */
+			     need to be stored. Set asksession to false when
+			     the Session save question was already handled. */
     bool		askStoreAttribs(bool,bool& askedanything);
 			/*!< Asks user if attributesets (2D or 3D )
-			  need to be stored. */
+			     need to be stored. */
     bool		hasSessionChanged(); /*!< Compares current session with
 						  last saved. */
     void		saveSession();	//!< pops up the save session dialog
@@ -139,6 +143,11 @@ protected:
     uiMain&		uiapp_;
     ODSession*		cursession_	= nullptr;
     ODSession&		lastsession_;
+    bool		sessionbaselined_	= false;
+			/*!< True after noteSessionStored/save;
+			 *   hasSessionChanged stays false until then,
+			 *   so start->close is quiet. */
+    int			baselinescenechildren_	= 0;
     bool		restoringsess_	= false;
     bool		restarting_	= false;
     BufferString	programname_;
@@ -162,11 +171,14 @@ private:
     CtxtIOObj*		getUserSessionIOData(bool);
     bool		updateSession();
     void		doRestoreSession();
+    void		baselineSceneState();
+    void		clearSessionBaseline();
 
     Timer&		sesstimer_;
     Timer&		memtimer_;
     Timer&		newsurvinittimer_;
     Timer&		autoloadsessiontimer_;
+    Timer&		transientstatustimer_;
 
     uiODSessionController* sessionctl_		= nullptr;
     bool		neednewsurvinit_	= false;
@@ -174,6 +186,7 @@ private:
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);
     void		autoloadSessionCB(CallBacker*);
+    void		transientStatusTimerCB(CallBacker*);
 
     void		updateCaptionCB(CallBacker*);
 
